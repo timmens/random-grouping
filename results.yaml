@@ -1,0 +1,34 @@
+grouping:
+  group0:
+  - 16
+  - 9
+  - 15
+  group1:
+  - 1
+  - 10
+  - 4
+  group2:
+  - 8
+  - 17
+  - 21
+  group3:
+  - 2
+  - 12
+  - 14
+named_grouping:
+  group0:
+  - Alexandros
+  - Paul B
+  - Timothy
+  group1:
+  - Daniel
+  - Paul G
+  - Luis
+  group2:
+  - Oleksii
+  - Miriam
+  - Lorenzo
+  group3:
+  - Fabio
+  - Philipp S
+  - Tim

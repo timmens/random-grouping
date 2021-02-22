@@ -1,0 +1,23 @@
+name: random-group
+
+channels:
+  - defaults
+  - conda-forge
+
+dependencies:
+  - python=3.7
+  - pip
+
+  - ipykernel
+  - jupyterlab
+  - nb_conda_kernels
+
+  - pandas
+  - numpy=1.19.1
+  - scipy
+  - numba
+  - matplotlib
+  - seaborn
+
+  - black
+  - flake8
