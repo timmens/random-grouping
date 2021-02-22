@@ -3,14 +3,17 @@ name: random-group
 channels:
   - defaults
   - conda-forge
+  - pytask
 
 dependencies:
   - python=3.7
   - pip
+  - pytask
 
   - ipykernel
   - jupyterlab
   - nb_conda_kernels
+  - conda-build
 
   - pandas
   - numpy=1.19.1
