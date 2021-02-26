@@ -35,11 +35,10 @@ def score_grouping_df(grouping_df, penalty_func=None):
 
     values = grouping_df.values
     tril = np.tril(values).flatten()
-    
-    unique_values = np.unique(tril)
+
     counts = np.bincount(tril)
 
-    score = np.sum(counts * penalty_func(unique_values))
+    score = np.sum(counts * penalty_func(np.arange(len(counts))))
     return score
 
 

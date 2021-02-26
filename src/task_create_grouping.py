@@ -1,6 +1,5 @@
 import os
 import yaml
-import pytask
 
 import numpy as np
 import pandas as pd
@@ -11,6 +10,7 @@ from src.shared import draw_groupings
 from src.shared import score_grouping_df
 from src.shared import update_grouping_df
 from src.shared import pick_best_candidate
+
 
 def read_names_df(path):
     names = pd.read_csv(path)
@@ -29,6 +29,7 @@ def read_grouping_df(path, names):
     else:
         grouping_df = pd.read_csv(path, index_col="id", header=0)
         grouping_df.columns.name = "id"
+        grouping_df.columns = grouping_df.columns.astype(int)
     return grouping_df
 
 
@@ -69,20 +70,23 @@ def write_pick(pick, names, path):
         f.write(text)
 
 
-@pytask.mark.depends_on(SRC / "config.yaml")
-@pytask.mark.depends_on(SRC / "data" / "names.csv")
-@pytask.mark.depends_on(SRC / "data" / "previous_groupings.csv")
-@pytask.mark.produces(BLD / "grouping.txt")
-def task_create_next_grouping(depends_on, produces):
-    kwargs = read_config_kwargs(depends_on[2])
+if __name__ == "__main__":
+    depends_on = {
+            "config": SRC / "config.yaml",
+            "names": SRC / "data" / "names.csv",
+            "groupings": SRC / "data" / "previous_groupings.csv",
+    }
+    produces = BLD / "grouping.txt"
 
-    names = read_names_df(depends_on[1])
+    kwargs = read_config_kwargs(depends_on["config"])
+
+    names = read_names_df(depends_on["names"])
     members = extract_current_members(names)
 
-    grouping_df = read_grouping_df(depends_on[0], names)
+    grouping_df = read_grouping_df(depends_on["groupings"], names)
     candidates = draw_groupings(members, **kwargs)
 
     updated_grouping_df, minimum = pick_best_candidate(candidates, grouping_df)
 
-    update_grouping_df_file(updated_grouping_df, depends_on[0])
+    update_grouping_df_file(updated_grouping_df, depends_on["groupings"])
     write_pick(minimum, names, produces)
