@@ -1,2 +1,8 @@
+bld/
+src/__pycache__/
+
 .ipynb_checkpoints/
-data/
+Untitled.ipynb
+
+.pytask.sqlite3
+pytask.ini
