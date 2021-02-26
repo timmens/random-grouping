@@ -1,1 +1,0 @@
-Random Group Generator
