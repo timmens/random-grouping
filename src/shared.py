@@ -1,11 +1,11 @@
-import numpy as np
-import pandas as pd
-
-from itertools import count
 from itertools import combinations
+from itertools import count
+
+import numpy as np
 
 
 def pick_best_candidate(candidates, grouping_df):
+    """Pick best candidate among list given some metrics."""
     scores = np.empty(len(candidates))
     for k, candidate in enumerate(candidates):
         updated_grouping_df = update_grouping_df(grouping_df, candidate)
@@ -13,7 +13,7 @@ def pick_best_candidate(candidates, grouping_df):
 
     minimum = candidates[np.argmin(scores)]
     updated_grouping_df = update_grouping_df(grouping_df, minimum)
-    return updated_grouping_df, minimum 
+    return updated_grouping_df, minimum
 
 
 def score_grouping_df(grouping_df, penalty_func=None):
@@ -26,7 +26,7 @@ def score_grouping_df(grouping_df, penalty_func=None):
             and column is given by the "id" column in SRC.data.names.csv.
         penalty_func (callable): Penalty function, defaults to np.exp. Is applied to
             punish large values in grouping_df.
-    
+
     Returns:
         score (float): Score of grouping matrix.
 
@@ -48,7 +48,7 @@ def update_grouping_df(grouping_df, new_grouping_candidate):
     Args:
         grouping_df (pd.DataFrame): Square df containing group information. Index
             and column is given by the "id" column in SRC.data.names.csv.
-        new_grouping_candidate (list-like): Grouping candidate.
+        new_grouping_candidate (list-like): Grouping candidate.  # noqa: RST203
 
     Returns:
         updated_grouping_df (pd.DataFrame): Updated grouping matrix where group
@@ -56,11 +56,11 @@ def update_grouping_df(grouping_df, new_grouping_candidate):
 
     """
     updated_grouping_df = grouping_df.copy()
-    
+
     for group in new_grouping_candidate:
         for comb in combinations(group, 2):
             updated_grouping_df.loc[comb[0], comb[1]] += 1
-            updated_grouping_df.loc[comb[1], comb[0]] += 1  # So that matrix is symmetric
+            updated_grouping_df.loc[comb[1], comb[0]] += 1
 
     return updated_grouping_df
 
@@ -79,9 +79,9 @@ def draw_groupings(members, min_size, n_candidates, initial_seed=0):
 
     """
     seed_counter = count(initial_seed)
-    
+
     candidates = []
-    for i in range(n_candidates):
+    for _ in range(n_candidates):
         grouping = create_grouping_candidate(members, min_size, next(seed_counter))
         candidates.append(grouping)
 
@@ -123,3 +123,17 @@ def create_chunks(members, min_size):
     chunks = np.array_split(members, n_chunks)
     chunks = [set(chunk.tolist()) for chunk in chunks]
     return chunks
+
+
+def extract_current_members(names):
+    """Extract current members from names data frame.
+
+    Args:
+        names (pd.DataFrame): names.csv data file converted to pd.DataFrame
+
+    Returns:
+        members (pd.Series): Series containing ids of individuals that participate.
+
+    """
+    members = names.query("joins == 1")["id"]
+    return members

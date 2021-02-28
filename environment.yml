@@ -6,9 +6,8 @@ channels:
   - pytask
 
 dependencies:
-  - python=3.7
+  - python=3.8
   - pip
-  - pytask
 
   - ipykernel
   - jupyterlab
@@ -16,11 +15,17 @@ dependencies:
   - conda-build
 
   - pandas
-  - numpy=1.19.1
+  - numpy
   - scipy
-  - numba
-  - matplotlib
-  - seaborn
 
-  - black
+    # - joblib
+    # - numba
+
+  - pytest
+  - pdbpp
   - flake8
+
+  - pip:
+      - black
+      - blackcellmagic
+      - pre-commit
