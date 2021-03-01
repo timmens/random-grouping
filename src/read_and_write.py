@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from src.config import CONFIG
 from src.config import SRC
 
 
@@ -12,9 +13,13 @@ def read_names_df():
     return names
 
 
-def read_config(path):
-    """To be written."""
-    with open(path) as f:
+def read_config():
+    """Read config file.
+
+    Is located at root of project and contains parameters for the algorithm.
+
+    """
+    with open(CONFIG) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     return config
 
