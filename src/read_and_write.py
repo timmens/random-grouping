@@ -2,28 +2,28 @@ import numpy as np
 import pandas as pd
 import yaml
 
+from src.config import SRC
 
-def read_names_df(path):
+
+def read_names_df():
     """To be written."""
+    path = SRC / "data" / "names.csv"
     names = pd.read_csv(path)
     return names
 
 
-def read_config_kwargs(path):
+def read_config(path):
     """To be written."""
     with open(path) as f:
-        kwargs = yaml.load(f, Loader=yaml.FullLoader)
-    return kwargs
+        config = yaml.load(f, Loader=yaml.FullLoader)
+    return config
 
 
 def read_grouping_df(path, names):
     """To be written."""
-    if not path.is_file():
-        grouping_df = create_grouping_df(names)
-    else:
-        grouping_df = pd.read_csv(path, index_col="id", header=0, dtype=int)
-        grouping_df.columns.name = "id"
-        grouping_df.columns = grouping_df.columns.astype(int)
+    grouping_df = pd.read_csv(path, index_col="id", header=0, dtype=int)
+    grouping_df.columns.name = "id"
+    grouping_df.columns = grouping_df.columns.astype(int)
     return grouping_df
 
 
