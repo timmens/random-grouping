@@ -61,6 +61,7 @@ Again open your favorite terminal emulator and run
 
 .. code-block:: zsh
 
+    pytask -m preliminaries
     pytask -m build
     pytask -m update_source
 
