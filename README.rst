@@ -46,11 +46,10 @@ and change to the root directory; then run in your favorite terminal emulator
 2. Configure Project
 """"""""""""""""""""
 
-Now you need to specify the arguments in `config.yaml <https://github.com/timmens/random-grouping>`_.
-In particular you need to specify how the project get access to names of participants.
-Here this is done via a csv file ``names.csv``. In ``config.yaml`` you can specify a
-link from which the file is downloaded or if the file will be located in the ``SRC/data``
-folder, where it then needs to be placed and updated.
+Now you need to specify the arguments in `config.yaml <https://github.com/timmens/random-grouping/blob/main/config.yaml>`_.
+In particular you need to specify how the project accesses the names and ids of the
+participants. You can choose to provide a url to the corresponding csv file or you save
+it locally in ``src/data``. To see how the file needs to be structured see `names.csv <https://github.com/timmens/random-grouping/blob/main/src/data/names.csv>`_.
 
 
 3. Build Project
