@@ -56,26 +56,16 @@ def read_matchings_history():
     return matchings_history
 
 
-def write_matching_to_txt(matching, names, path):
-    """Write (group) matching to txt file.
-
-    Writes group matching in human readable form.
+def write_file(to_write, path):
+    """Write string to path.
 
     Args:
-        matching (list): Matching in list form. (BETTER EXPLAINATION)
-        names (pd.DataFrame): names df, see func ``read_names``
+        to_write (str): String which we want to write to path.
         path (pathlib.Path): Filepath to write to.
 
     Returns:
         None
 
     """
-    names = names.set_index("id").copy()
-    texts = [", ".join(names["name"].loc[group].values) for group in matching]
-
-    text = ""
-    for k, text_ in enumerate(texts):
-        text += f"Group {k}: {text_}\n"
-
     with open(path, "w") as f:
-        f.write(text)
+        f.write(to_write)
