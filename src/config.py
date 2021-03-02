@@ -3,4 +3,4 @@ from pathlib import Path
 
 SRC = Path(__file__).parent
 BLD = SRC.joinpath("..", "bld").resolve()
-CONFIG = SRC.parent
+CONFIG = SRC.parent / "config.yaml"

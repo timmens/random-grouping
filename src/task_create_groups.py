@@ -11,13 +11,12 @@ from src.read_and_write import read_names
 from src.read_and_write import write_file
 
 
-def format_matching_as_str(matching, names, path):
+def format_matching_as_str(matching, names):
     """Format matching in human readable string.
 
     Args:
         matching (list): Matching in list form. (BETTER EXPLAINATION)
         names (pd.DataFrame): names df, see func ``read_names``
-        path (pathlib.Path): Filepath to write to.
 
     Returns:
         text (str): The formatted text as string.
@@ -62,7 +61,9 @@ def task_create_matchings(depends_on, produces):  # noqa: D103
 
     participants = get_participants(names)
 
-    candidates = draw_candidate_matchings(participants, config)
+    candidates = draw_candidate_matchings(
+        participants, config["min_size"], config["n_candidates"], config["initial_seed"]
+    )
     best_matching = find_best_matching(candidates, matchings_history)
 
     updated_history = update_matchings_history(matchings_history, best_matching)
