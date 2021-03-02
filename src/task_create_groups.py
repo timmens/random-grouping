@@ -2,6 +2,7 @@ import pytask
 
 from src.algorithm import draw_candidate_matchings
 from src.algorithm import find_best_matching
+from src.algorithm import update_matchings_history
 from src.config import BLD
 from src.config import SRC
 from src.read_and_write import read_config
@@ -62,8 +63,9 @@ def task_create_matchings(depends_on, produces):  # noqa: D103
     participants = get_participants(names)
 
     candidates = draw_candidate_matchings(participants, config)
-    updated_history, best_matching = find_best_matching(candidates, matchings_history)
+    best_matching = find_best_matching(candidates, matchings_history)
 
+    updated_history = update_matchings_history(matchings_history, best_matching)
     updated_history.to_csv(produces[0])
 
     text = format_matching_as_str(best_matching, names)

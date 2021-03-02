@@ -38,7 +38,7 @@ repos:
             flake8-todo, pep8-naming, pydocstyle,
         ]
         args:
-            - --ignore=D100 D104
+            - --ignore=D100 D104 RST201 RST203 RST301
             - --max-line-length=88
 -   repo: meta
     hooks:
