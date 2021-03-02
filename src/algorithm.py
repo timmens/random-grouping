@@ -4,28 +4,39 @@ from itertools import count
 import numpy as np
 
 
-def pick_best_candidate(candidates, grouping_df):
-    """Pick best candidate among list given some metrics."""
+def find_best_matching(candidates, matchings_history, penalty_func=None):
+    """Find best (matching) candidate from list given some metric.
+
+    Args:
+        candidates (list): List of matching candidates.
+        matchings_history (pd.DataFrame): Square df containing group information. Index
+            and column is given by the 'id' column in src/data/names.csv.
+        penalty_func (callable): Penalty function, defaults to np.exp. Is applied to
+            punish large values in matchings_history.
+
+    Returns:
+        best_matching (list): Matching with lowest loss.
+
+    """
     scores = np.empty(len(candidates))
     for k, candidate in enumerate(candidates):
-        updated_grouping_df = update_grouping_df(grouping_df, candidate)
-        scores[k] = score_grouping_df(updated_grouping_df)
+        updated_history = update_matchings_history(matchings_history, candidate)
+        scores[k] = score_matchings_history(updated_history)
 
-    minimum = candidates[np.argmin(scores)]
-    updated_grouping_df = update_grouping_df(grouping_df, minimum)
-    return updated_grouping_df, minimum
+    best_matching = candidates[np.argmin(scores)]
+    return best_matching
 
 
-def score_grouping_df(grouping_df, penalty_func=None):
+def score_matchings_history(matchings_history, penalty_func=None):
     """Score grouping matrix.
 
     Scores grouping matrix such that having many large values is penalized.
 
     Args:
-        grouping_df (pd.DataFrame): Square df containing group information. Index
-            and column is given by the "id" column in SRC.data.names.csv.
+        matchings_history (pd.DataFrame): Square df containing group information. Index
+            and column is given by the 'id' column in src/data/names.csv.
         penalty_func (callable): Penalty function, defaults to np.exp. Is applied to
-            punish large values in grouping_df.
+            punish large values in matchings_history.
 
     Returns:
         score (float): Score of grouping matrix.
@@ -33,7 +44,7 @@ def score_grouping_df(grouping_df, penalty_func=None):
     """
     penalty_func = np.exp if penalty_func is None else penalty_func
 
-    values = grouping_df.values
+    values = matchings_history.values
     tril = np.tril(values).flatten()
 
     counts = np.bincount(tril)
@@ -42,30 +53,30 @@ def score_grouping_df(grouping_df, penalty_func=None):
     return score
 
 
-def update_grouping_df(grouping_df, new_grouping_candidate):
+def update_matchings_history(matchings_history, matching):
     """Update grouping matrix using new grouping candidate.
 
     Args:
-        grouping_df (pd.DataFrame): Square df containing group information. Index
-            and column is given by the "id" column in SRC.data.names.csv.
-        new_grouping_candidate (list-like): Grouping candidate.  # noqa: RST203
+        matchings_history (pd.DataFrame): Square df containing group information. Index
+            and column is given by the 'id' column in src/data/names.csv.
+        matching (list): Matching.
 
     Returns:
-        updated_grouping_df (pd.DataFrame): Updated grouping matrix where group
+        updated_history (pd.DataFrame): Updated grouping matrix where group
             membership is noted as +1 in the respective column-row of grouping matrix.
 
     """
-    updated_grouping_df = grouping_df.copy()
+    updated_history = matchings_history.copy()
 
-    for group in new_grouping_candidate:
+    for group in matching:
         for comb in combinations(group, 2):
-            updated_grouping_df.loc[comb[0], comb[1]] += 1
-            updated_grouping_df.loc[comb[1], comb[0]] += 1
+            updated_history.loc[comb[0], comb[1]] += 1
+            updated_history.loc[comb[1], comb[0]] += 1
 
-    return updated_grouping_df
+    return updated_history
 
 
-def draw_groupings(members, min_size, n_candidates, initial_seed=0):
+def draw_candidate_matchings(members, min_size, n_candidates, initial_seed=0):
     """Create multiple random groupings in list-format.
 
     Args:
@@ -123,17 +134,3 @@ def create_chunks(members, min_size):
     chunks = np.array_split(members, n_chunks)
     chunks = [set(chunk.tolist()) for chunk in chunks]
     return chunks
-
-
-def extract_current_members(names):
-    """Extract current members from names data frame.
-
-    Args:
-        names (pd.DataFrame): names.csv data file converted to pd.DataFrame
-
-    Returns:
-        members (pd.Series): Series containing ids of individuals that participate.
-
-    """
-    members = names.query("joins == 1")["id"]
-    return members

@@ -1,12 +1,12 @@
+.. image:: .image.png
+    :width: 500
+
 .. image:: https://img.shields.io/badge/License-MIT-yellow.svg
     :target: https://opensource.org/licenses/MIT
     :alt: License
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
-
-.. image:: .image.png
-    :width: 500
 
 
 Use Case
@@ -25,9 +25,69 @@ you want new group matchings to be sufficiently different from old matchings.
 How to Use It
 -------------
 
+First Time Use
+^^^^^^^^^^^^^^
+
+1. Create Python Environment
+""""""""""""""""""""""""""""
+If you are using the code for the very first time you will need to create a Python
+environment which allows you to execute the code. All necessary packages are listed in
+the file `environment.yml <https://github.com/timmens/random-grouping/blob/main/environment.yml>`_.
+A particularly easy approach is to use the package manager conda. Clone the repository
+and change to the root directory; then run in your favorite terminal emulator
+
+.. code-block:: zsh
+
+    conda env create -f environment.yml
+    conda activate random-group
+    conda develop .
+
+
+2. Configure Project
+""""""""""""""""""""
+
+Now you need to specify the arguments in `config.yaml <https://github.com/timmens/random-grouping>`_.
+In particular you need to specify how the project get access to names of participants.
+Here this is done via a csv file ``names.csv``. In ``config.yaml`` you can specify a
+link from which the file is downloaded or if the file will be located in the ``SRC/data``
+folder, where it then needs to be placed and updated.
+
+
+3. Build Project
+""""""""""""""""
+
+To build the project and produce results we use `pytask <https://pytask-dev.readthedocs.io/en/latest/index.html>`_.
+Again open your favorite terminal emulator and run
+
+.. code-block:: zsh
+
+    pytask -m preliminaries
+    pytask -m build
+    pytask -m update_source
+
+
+And you're done. The group matchings can be found in the file ``BLD/matchings.txt``.
+
+
+Using the Project Again
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Thanks to the command ``pytask -m update_source`` the information in the previous
+matchings is saved and will influence new group matchings. To create a new matching
+change the configurations to your liking, update ``names.csv`` if necessary, and then
+simply run
+
+.. code-block:: zsh
+
+    pytask -m build
+    pytask -m update_source
+
+
 
 How We Solve the Problem
 ------------------------
+
+To be written.
 
 
 Contributing
