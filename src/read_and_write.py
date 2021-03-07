@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 import yaml
 
@@ -37,6 +39,10 @@ def read_config():
     """
     with open(CONFIG) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
+
+    if config["matchings_history_path"] is not None:
+        config["matchings_history_path"] = Path(config["matchings_history_path"])
+
     return config
 
 
@@ -49,7 +55,10 @@ def read_matchings_history():
             meetings of the row individual with the column indidivual.
 
     """
-    p = SRC / "data" / "matchings_history.csv"
+    config = read_config()
+    p = config["matchings_history_path"]
+    p = p if p is not None else SRC / "data" / "matchings_history.csv"
+
     matchings_history = pd.read_csv(p, index_col="id", header=0, dtype=int)
     matchings_history.columns.name = "id"
     matchings_history.columns = matchings_history.columns.astype(int)

@@ -11,3 +11,6 @@ is_names_file_stored_local: True
 
 names_file_url:
 # link to names file
+
+matchings_history_path:
+# path to matchings_history.csv, if empty new file is created from names.csv
