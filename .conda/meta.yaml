@@ -1,0 +1,38 @@
+{% set data = load_setup_py_data() %}
+
+package:
+  name: randomgroups
+  version: {{ data.get('version') }}
+
+source:
+  # git_url is nice in that it won't capture devenv stuff.  However, it only captures
+  # committed code, so pay attention.
+  git_url: ../
+
+build:
+  noarch: python
+  number: 0
+
+requirements:
+  build:
+    - python
+    - setuptools
+  host:
+    - python >=3.6
+
+  run:
+    - python >=3.6
+      # - click
+      # - joblib
+    - numpy >=1.16
+    - pandas >=0.24
+
+test:
+  requires:
+    - pytest
+
+about:
+  home: https://github.com/timmens/random-grouping
+  license: MIT
+  license_file: LICENSE
+  summary: Random recurring grouping generator.

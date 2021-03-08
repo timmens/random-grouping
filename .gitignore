@@ -1,7 +1,4 @@
-bld/
 src/__pycache__/
 
 .ipynb_checkpoints/
 Untitled.ipynb
-
-.pytask.sqlite3
