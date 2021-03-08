@@ -1,15 +1,13 @@
-name: random-group
+name: randomgroups
 
 channels:
   - defaults
   - conda-forge
-  - pytask
 
 dependencies:
   - python=3.8
   - pip
   - click
-  - pytask
 
   - ipykernel
   - jupyterlab
@@ -18,10 +16,6 @@ dependencies:
 
   - pandas
   - numpy
-  - scipy
-
-    # - joblib
-    # - numba
 
   - pytest
   - pdbpp

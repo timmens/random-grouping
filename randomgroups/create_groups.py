@@ -1,10 +1,10 @@
-from src.algorithm import draw_candidate_matchings
-from src.algorithm import find_best_matching
-from src.algorithm import update_matchings_history
-from src.read_and_write import read_names
-from src.read_and_write import read_or_create_matchings_history
-from src.read_and_write import write_matching
-from src.read_and_write import write_matchings_history
+from randomgroups.algorithm import draw_candidate_matchings
+from randomgroups.algorithm import find_best_matching
+from randomgroups.algorithm import update_matchings_history
+from randomgroups.read_and_write import read_names
+from randomgroups.read_and_write import read_or_create_matchings_history
+from randomgroups.read_and_write import write_matching
+from randomgroups.read_and_write import write_matchings_history
 
 
 def create_groups(
