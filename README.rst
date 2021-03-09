@@ -69,7 +69,8 @@ Here the argument ``min_size`` denotes the minimum number of members in a group.
 folder ``output_path`` two files will be created. One, ``matchings.txt`` which contain
 the named matchings for the current meeting, and second, ``matchings_history.csv`` which
 contains information on matchings. The latter file needs to be saved since it will be
-used in subsequent function calls.
+used in subsequent function calls. Example files are given here: `matchings.txt <https://github.com/timmens/random-grouping/blob/main/data/matchings.txt>`_,
+`matchings_history.csv <https://github.com/timmens/random-grouping/blob/main/data/matchings_history.csv>`_.
 
 
 **Subsequent Usage:**
