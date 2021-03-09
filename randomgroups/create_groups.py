@@ -1,3 +1,6 @@
+import numpy as np
+import pandas as pd
+
 from randomgroups.algorithm import draw_candidate_matchings
 from randomgroups.algorithm import find_best_matching
 from randomgroups.algorithm import update_matchings_history
@@ -40,6 +43,7 @@ def create_groups(
     names = read_names(names_file_path)
     matchings_history = read_or_create_matchings_history(matchings_history_path, names)
 
+    matchings_history = add_new_individuals(matchings_history, names)
     participants = get_participants(names)
 
     candidates = draw_candidate_matchings(
@@ -55,6 +59,36 @@ def create_groups(
 
     results = (best_matching, updated_history) if return_results else None
     return results
+
+
+def add_new_individuals(matchings_history, names):
+    """Add new individuals to matchings_history data frame.
+
+    Args:
+        matchings_history (pd.DataFrame): Square df containing group information. Index
+            and column is given by the 'id' column in src/data/names.csv.
+        names (pd.DataFrame): names.csv file converted to pd.DataFrame
+
+    Returns:
+        updated (pd.DataFrame): Like matchings_history but with new individuals.
+
+    """
+    matchings_history_id = matchings_history.index.values
+    names_id = names["id"].values
+
+    new_ids = np.setdiff1d(names_id, matchings_history_id)
+
+    n_new = len(new_ids)
+    n_old = len(matchings_history)
+
+    if n_new == 0:
+        updated = matchings_history.copy()
+    else:
+        to_append = pd.DataFrame(np.zeros(n_new, n_old), dtype=int, index=new_ids)
+        updated = pd.concat((matchings_history, to_append), axis=0)
+        updated = pd.concat((updated, to_append), axis=1)
+
+    return updated
 
 
 def get_participants(names):
