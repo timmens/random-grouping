@@ -44,7 +44,10 @@ The code expects a csv file containing *id*, *name*, and *joins* columns, where 
 is used internally to keep track of matchings, *name* is a str column which is used
 when creating the human-readable output and *joins* is a {0, 1} column which denotes
 if the given individual wants to join the current meeting. An example file is given
-here `names.csv <https://github.com/timmens/random-grouping/blob/main/data/names.csv>`_.
+here `names.csv <https://github.com/timmens/random-grouping/blob/main/example_data/names.csv>`_.
+Note that the rows in *id* column have to be unique. If new individuals wish to be added
+these individuals simply need to be appended to the data file, the code will update all
+further files automatically.
 
 **First Time Use:**
 
@@ -69,8 +72,8 @@ Here the argument ``min_size`` denotes the minimum number of members in a group.
 folder ``output_path`` two files will be created. One, ``matchings.txt`` which contain
 the named matchings for the current meeting, and second, ``matchings_history.csv`` which
 contains information on matchings. The latter file needs to be saved since it will be
-used in subsequent function calls. Example files are given here: `matchings.txt <https://github.com/timmens/random-grouping/blob/main/data/matchings.txt>`_,
-`matchings_history.csv <https://github.com/timmens/random-grouping/blob/main/data/matchings_history.csv>`_.
+used in subsequent function calls. Example files are given here: `matching.txt <https://github.com/timmens/random-grouping/blob/main/example_data/matching.txt>`_,
+`matchings_history.csv <https://github.com/timmens/random-grouping/blob/main/example_data/matchings_history.csv>`_.
 
 
 **Subsequent Usage:**
