@@ -6,24 +6,24 @@ import numpy as np
 import pandas as pd
 
 
-def read_names(names_file_path):
+def read_names(names_path):
     """Read names file.
 
     Reads names file if stored locally and downloads it if url is given instead.
 
     Args:
-        names_file_path (str or pathlib.Path): File path to or URL of names data file.
+        names_path (str or pathlib.Path): File path to or URL of names data file.
 
     Returns:
         names (pd.DataFrame): df with columns 'id'(int), 'names'(str) and 'joins'(0/1).
 
     """
-    if _is_url(names_file_path):
+    if _is_url(names_path):
         raise NotImplementedError(
             "Downloading of names data file is not implemented yet."
         )
     else:
-        names = pd.read_csv(names_file_path)
+        names = pd.read_csv(names_path)
     return names
 
 

@@ -11,7 +11,7 @@ from randomgroups.read_and_write import write_matchings_history
 
 
 def create_groups(
-    names_file_path=None,
+    names_path=None,
     matchings_history_path=None,
     output_path=None,
     min_size=3,
@@ -22,7 +22,7 @@ def create_groups(
     """Create groupings.
 
     Args:
-        names_file_path (str or pathlib.Path): Local path to or URL of names data file.
+        names_path (str or pathlib.Path): Local path to or URL of names data file.
         matchings_history_path (str or pathlib.Path): Path to matchings history file.
         output_path (str or pathlib.Path): Output path. If None output is not written.
         min_size (int): Minimum group size.
@@ -40,7 +40,7 @@ def create_groups(
             "either pass a valid output path or set return_results to True."
         )
 
-    names = read_names(names_file_path)
+    names = read_names(names_path)
     matchings_history = read_or_create_matchings_history(matchings_history_path, names)
 
     matchings_history = add_new_individuals(matchings_history, names)

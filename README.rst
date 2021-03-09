@@ -1,6 +1,12 @@
 .. image:: .image.png
     :width: 500
 
+.. image:: https://anaconda.org/timmens/randomgroups/badges/version.svg
+   :target: https://anaconda.org/timmens/randomgroups
+
+.. image:: https://anaconda.org/timmens/randomgroups/badges/platforms.svg
+   :target: https://anaconda.org/timmens/randomgroups
+
 .. image:: https://img.shields.io/badge/License-MIT-yellow.svg
     :target: https://opensource.org/licenses/MIT
     :alt: License
@@ -12,81 +18,65 @@
 Use Case
 --------
 
-The code in this repo can be used to create random groups given some set of members,
-even if
-
-1. the set of members varies between meetings
-2. old group matchings should inform new group matchings
-
-Or in plain English: You need to create group matchings on a, say, weekly, basis and
-you want new group matchings to be sufficiently different from old matchings.
+This package exports a single function called ``create_groups`` which can be used to
+to create groups for different meetings from a varying but overlapping set of members.
+In particular the internal algorithm makes sure that group matchings in different
+meetings are mixed.
 
 
-How to Use It
--------------
-
-First Time Use
-^^^^^^^^^^^^^^
-
-1. Create Python Environment
-""""""""""""""""""""""""""""
-If you are using the code for the very first time you will need to create a Python
-environment which allows you to execute the code. All necessary packages are listed in
-the file `environment.yml <https://github.com/timmens/random-grouping/blob/main/environment.yml>`_.
-A particularly easy approach is to use the package manager conda. Clone the repository
-and change to the root directory; then run in your favorite terminal emulator
-
-.. code-block:: zsh
-
-    conda env create -f environment.yml
-    conda activate random-group
-    conda develop .
+Installation
+------------
 
 
-2. Configure Project
-""""""""""""""""""""
+The package can be installed via conda. To do so, type the following commands in your
+favorite terminal emulator:
 
-Now you need to specify the arguments in `config.yaml <https://github.com/timmens/random-grouping/blob/main/config.yaml>`_.
-In particular you need to specify how the project accesses the names and ids of the
-participants. You can choose to provide a url to the corresponding csv file or you save
-it locally in ``src/data``. To see how the file needs to be structured see `names.csv <https://github.com/timmens/random-grouping/blob/main/src/data/names.csv>`_.
+.. code-block:: bash
 
-
-3. Build Project
-""""""""""""""""
-
-To build the project and produce results we use `pytask <https://pytask-dev.readthedocs.io/en/latest/index.html>`_.
-Again open your favorite terminal emulator and run
-
-.. code-block:: zsh
-
-    pytask -m preliminaries
-    pytask -m build
-    pytask -m update_source
+    $ conda config --add channels conda-forge
+    $ conda install -c timmens randomgroups
 
 
-And you're done. The group matchings can be found in the file ``BLD/matchings.txt``.
+How to Use
+----------
+
+The code expects a csv file containing *id*, *name*, and *joins* columns, where *id*
+is used internally to keep track of matchings, *name* is a str column which is used
+when creating the human-readable output and *joins* is a {0, 1} column which denotes
+if the given individual wants to join the current meeting. An example file is given
+here `names.csv <https://github.com/timmens/random-grouping/blob/main/data/names.csv>`_.
+
+**First Time Use:**
+
+If no prior matchings have been recorded you can create a new set of groups by running
+the following lines in a Python shell
+
+.. code-block:: Python3
+
+    from randomgroups import create_groups
+
+    name_path = "/path/to/names.csv"
+    output_path = "/path/to/folder/where/to/store/output/data"
+
+    create_groups(
+        names_path=names_path,
+        output_path=output_path,
+        min_size=3,
+    )
 
 
-Using the Project Again
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Thanks to the command ``pytask -m update_source`` the information in the previous
-matchings is saved and will influence new group matchings. To create a new matching
-change the configurations to your liking, update ``names.csv`` if necessary, and then
-simply run
-
-.. code-block:: zsh
-
-    pytask -m build
-    pytask -m update_source
+Here the argument ``min_size`` denotes the minimum number of members in a group. In the
+folder ``output_path`` two files will be created. One, ``matchings.txt`` which contain
+the named matchings for the current meeting, and second, ``matchings_history.csv`` which
+contains information on matchings. The latter file needs to be saved since it will be
+used in subsequent function calls.
 
 
+**Subsequent Usage:**
 
-How We Solve the Problem
-------------------------
-
-To be written.
+Once the file ``matchings_history.csv`` has been created one can further pass the path
+of this file to the function call via ``matchings_history_path=...``. The previous
+matchings will then influence new group formations.
 
 
 Contributing
