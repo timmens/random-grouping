@@ -5,9 +5,7 @@ package:
   version: {{ data.get('version') }}
 
 source:
-  # git_url is nice in that it won't capture devenv stuff.  However, it only captures
-  # committed code, so pay attention.
-  git_url: ../
+    git_url: https://github.com/timmens/random-grouping.git
 
 build:
   noarch: python
@@ -22,8 +20,7 @@ requirements:
 
   run:
     - python >=3.6
-      # - click
-      # - joblib
+    - click
     - numpy >=1.16
     - pandas >=0.24
 
