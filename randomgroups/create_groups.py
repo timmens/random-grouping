@@ -9,7 +9,6 @@ from randomgroups.read_and_write import write_matchings_history
 
 def create_groups(
     names_file_path=None,
-    names_file_url=None,
     matchings_history_path=None,
     output_path=None,
     min_size=3,
@@ -20,17 +19,16 @@ def create_groups(
     """Create groupings.
 
     Args:
-        names_file_path (str or pathlib.Path): Local path to names data file.
-        names_file_url (str): URL to names data file.
+        names_file_path (str or pathlib.Path): Local path to or URL of names data file.
         matchings_history_path (str or pathlib.Path): Path to matchings history file.
-        output_path (str or pathlib.Path): Output path.
+        output_path (str or pathlib.Path): Output path. If None output is not written.
         min_size (int): Minimum group size.
         n_candidates (int): Number of candidate groups to try during loss minimization.
         initial_seed (int): Seed to pass to the seed generator.
 
     Returns:
         best_matching (list) and updated_history (pd.DataFrame) if argument
-        return_results is True, else None.
+            return_results is True, else None.
 
     """
     if output_path is None and return_results is False:
@@ -39,7 +37,7 @@ def create_groups(
             "either pass a valid output path or set return_results to True."
         )
 
-    names = read_names(names_file_path, names_file_url)
+    names = read_names(names_file_path)
     matchings_history = read_or_create_matchings_history(matchings_history_path, names)
 
     participants = get_participants(names)
@@ -51,8 +49,9 @@ def create_groups(
 
     updated_history = update_matchings_history(matchings_history, best_matching)
 
-    write_matchings_history(updated_history, output_path)
-    write_matching(best_matching, names, output_path)
+    if output_path is not None:
+        write_matchings_history(updated_history, output_path)
+        write_matching(best_matching, names, output_path)
 
     results = (best_matching, updated_history) if return_results else None
     return results

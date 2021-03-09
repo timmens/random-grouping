@@ -1,3 +1,4 @@
+import urllib
 from pathlib import Path
 
 import click
@@ -5,37 +6,24 @@ import numpy as np
 import pandas as pd
 
 
-def read_names(names_file_path, names_file_url):
+def read_names(names_file_path):
     """Read names file.
 
     Reads names file if stored locally and downloads it if url is given instead.
 
     Args:
-        names_file_path (str or pathlib.Path): File to names data file.
-        names_file_url (str or pathlib.Path): URL of names data file.
+        names_file_path (str or pathlib.Path): File path to or URL of names data file.
 
     Returns:
         names (pd.DataFrame): df with columns 'id'(int), 'names'(str) and 'joins'(0/1).
 
     """
-    if names_file_path is None:
-        if names_file_url is None:
-            raise ValueError(
-                "Both arguments 'names_file_path' and 'names_file_url' are None."
-                "Please enter a valid path to the names data file."
-            )
-        else:
-            raise NotImplementedError(
-                "Downloading of names data file is not implemented yet."
-            )
+    if _is_url(names_file_path):
+        raise NotImplementedError(
+            "Downloading of names data file is not implemented yet."
+        )
     else:
-        if names_file_url is None:
-            names = pd.read_csv(names_file_path)
-        else:
-            raise ValueError(
-                "Both arguments 'names_file_path' and 'names_file_url' are *not* "
-                "None. Please enter only one path to the names data file."
-            )
+        names = pd.read_csv(names_file_path)
     return names
 
 
@@ -77,14 +65,16 @@ def write_matchings_history(updated_history, output_path):
         None
 
     """
-    p = Path(output_path) / "updated_matchings_history.csv"
+    output_path = Path(output_path)
+    p = output_path / "updated_matchings_history.csv"
     if p.is_file():
         fname = click.prompt(
             f"File {p} exists. Please enter other name or nothing to overwrite.",
             type=str,
+            default="",
         )
         fname = fname if len(fname) > 0 else "updated_matchings_history.csv"
-        p = output_path / fname
+        p = (output_path / fname).with_suffix(".csv")
     updated_history.to_csv(p)
 
 
@@ -100,17 +90,27 @@ def write_matching(best_matching, names, output_path):
         None
 
     """
-    p = Path(output_path) / "matching.txt"
+    output_path = Path(output_path)
+    p = output_path / "matching.txt"
     if p.is_file():
         fname = click.prompt(
             f"File {p} exists. Please enter other name or nothing for overwrite.",
             type=str,
+            default="",
         )
         fname = fname if len(fname) > 0 else "matching.txt"
-        p = output_path / fname
+        p = (output_path / fname).with_suffix(".txt")
 
     text = _format_matching_as_str(best_matching, names)
     write_file(text, p)
+
+
+def _is_url(string):
+    """Determine if string is a valid URL."""
+    return urllib.parse.urlparse(string).scheme in (
+        "http",
+        "https",
+    )
 
 
 def _create_matchings_history(names):
