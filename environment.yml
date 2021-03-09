@@ -12,6 +12,8 @@ dependencies:
   - ipykernel
   - jupyterlab
   - nb_conda_kernels
+
+  - anaconda-client
   - conda-build
 
   - pandas

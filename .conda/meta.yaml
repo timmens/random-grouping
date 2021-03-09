@@ -1,8 +1,6 @@
-{% set data = load_setup_py_data() %}
-
 package:
   name: randomgroups
-  version: {{ data.get('version') }}
+  version: "0.0.1"
 
 source:
     git_url: https://github.com/timmens/random-grouping.git
@@ -23,10 +21,6 @@ requirements:
     - click
     - numpy >=1.16
     - pandas >=0.24
-
-test:
-  requires:
-    - pytest
 
 about:
   home: https://github.com/timmens/random-grouping
