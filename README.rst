@@ -40,6 +40,13 @@ favorite terminal emulator:
     $ conda install -c timmens randomgroups
 
 
+If you prefer to use pip you can install the latest version directly from GitHub via:
+
+.. code-block:: bash
+
+    $ pip install --upgrade git+git://github.com/timmens/random-grouping.git
+
+
 How to Use
 ----------
 
