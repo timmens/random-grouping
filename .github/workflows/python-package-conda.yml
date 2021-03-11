@@ -11,23 +11,20 @@ on:
 jobs:
   build-package:
     runs-on: ${{ matrix.os }}
+
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
+        os: ['ubuntu-latest']
         python-version: ['3.6', '3.7', '3.8', '3.9']
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python Version
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Add conda to system path
-      run: |
-        # $CONDA is an environment variable pointing to the root of the miniconda directory
-        echo $CONDA/bin >> $GITHUB_PATH
-    - name: Install package
-      run: |
-        conda init bash
-        conda activate
-        conda install -c timmens randomgroups
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package
+        shell: bash -l {0}
+        run: |
+          conda install -c timmens randomgroups
