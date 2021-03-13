@@ -1,4 +1,3 @@
-import urllib
 from pathlib import Path
 
 import click
@@ -9,7 +8,10 @@ import pandas as pd
 def read_names(names_path):
     """Read names file.
 
-    Reads names file if stored locally and downloads it if url is given instead.
+    Reads names file if stored locally and downloads it if url is given instead. This
+    exepects that the csv is directly downloadable from the url. For example, if you
+    want to download a google sheet as a csv in the file settings of the google sheet
+    you have to publish the document as a css file to get the correct link.
 
     Args:
         names_path (str or pathlib.Path): File path to or URL of names data file.
@@ -18,12 +20,7 @@ def read_names(names_path):
         names (pd.DataFrame): df with columns 'id'(int), 'names'(str) and 'joins'(0/1).
 
     """
-    if _is_url(names_path):
-        raise NotImplementedError(
-            "Downloading of names data file is not implemented yet."
-        )
-    else:
-        names = pd.read_csv(names_path)
+    names = pd.read_csv(names_path)
     return names
 
 
@@ -103,14 +100,6 @@ def write_matching(best_matching, names, output_path):
 
     text = _format_matching_as_str(best_matching, names)
     write_file(text, p)
-
-
-def _is_url(string):
-    """Determine if string is a valid URL."""
-    return urllib.parse.urlparse(string).scheme in (
-        "http",
-        "https",
-    )
 
 
 def _create_matchings_history(names):

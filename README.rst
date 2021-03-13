@@ -86,6 +86,14 @@ used in subsequent function calls. Example files are given here: `matching.txt <
 `matchings_history.csv <https://github.com/timmens/random-grouping/blob/main/example_data/matchings_history.csv>`_.
 
 
+*Remark:* If the files ``names.csv`` is a Google sheet which is updated on a regular
+basis it can be sensible not to donwload the file but to provide a link to the sheet
+directly. In the case with Google sheets this is easily done by opening the Google
+sheet and then publishing the document in the file options. This creates a link to a
+downloadable csv file which updates when the Google sheet is updated. This URL can then
+be passed to ``names_path``.
+
+
 **Subsequent Usage:**
 
 Once the file ``matchings_history.csv`` has been created one can further pass the path
