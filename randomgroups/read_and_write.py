@@ -20,6 +20,10 @@ def read_names(names_path):
         names (pd.DataFrame): df with columns 'id'(int), 'names'(str) and 'joins'(0/1).
 
     """
+    if names_path is None:
+        raise ValueError(
+            "Argument 'names_path' is None. Please pass a valid names path."
+        )
     names = pd.read_csv(names_path)
     return names
 
@@ -39,14 +43,14 @@ def read_or_create_matchings_history(matchings_history_path, names):
             meetings of the row individual with the column indidivual.
 
     """
-    p = Path(matchings_history_path)
-
-    if p.is_file():
-        matchings_history = pd.read_csv(p, index_col="id", header=0, dtype=int)
+    if matchings_history_path is None:
+        matchings_history = _create_matchings_history(names)
+    else:
+        matchings_history = pd.read_csv(
+            matchings_history_path, index_col="id", header=0, dtype=int
+        )
         matchings_history.columns.name = "id"
         matchings_history.columns = matchings_history.columns.astype(int)
-    else:
-        matchings_history = _create_matchings_history(names)
 
     return matchings_history
 

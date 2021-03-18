@@ -40,7 +40,9 @@ favorite terminal emulator:
     $ conda install -c timmens randomgroups
 
 
-If you prefer to use pip you can install the latest version directly from GitHub via:
+If you prefer to use pip you can install the latest version directly from GitHub;
+however note that you need to install ``numpy``, ``pandas`` and ``click`` manually
+which is done automatically when using conda. Once the dependencies are installed run:
 
 .. code-block:: bash
 
@@ -68,7 +70,7 @@ the following lines in a Python shell
 
     from randomgroups import create_groups
 
-    name_path = "/path/to/names.csv"
+    names_path = "/path/to/names.csv"
     output_path = "/path/to/folder/where/to/store/output/data"
 
     create_groups(
