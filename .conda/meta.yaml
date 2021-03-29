@@ -5,7 +5,7 @@ package:
   version: {{ data.get('version') }}
 
 source:
-    git_url: https://github.com/timmens/random-grouping
+    git_url: https://github.com/timmens/random-grouping.git
 
 build:
   noarch: python
