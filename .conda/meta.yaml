@@ -5,12 +5,12 @@ package:
   version: {{ data.get('version') }}
 
 source:
-    git_url: https://github.com/timmens/random-grouping.git
+    git_url: ../
 
 build:
   noarch: python
   number: 0
-  script: {{ PYTHON }} setup.py install --single-version-externally-managed --record record.txt
+  script: {{ PYTHON }} -m pip install . -vv
 
 requirements:
   host:
