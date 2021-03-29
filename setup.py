@@ -8,4 +8,6 @@ setup(
     author_email="tmensinger@uni-bonn.de",
     url="https://github.com/timmens/random-grouping",
     packages=find_packages(),
+    python_requires=">=3.6",
+    install_requires=["click", "numpy >=1.16", "pandas >=0.24"],
 )

@@ -40,9 +40,7 @@ favorite terminal emulator:
     $ conda install -c timmens randomgroups
 
 
-If you prefer to use pip you can install the latest version directly from GitHub;
-however note that you need to install ``numpy``, ``pandas`` and ``click`` manually
-which is done automatically when using conda. Once the dependencies are installed run:
+If you prefer to use pip you can install the latest version directly from GitHub.
 
 .. code-block:: bash
 
