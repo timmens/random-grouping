@@ -1,6 +1,8 @@
+{% set data = load_setup_py_data() %}
+
 package:
   name: randomgroups
-  version: "0.0.1"
+  version: {{ data.get('version') }}
 
 source:
     git_url: https://github.com/timmens/random-grouping.git
@@ -8,12 +10,11 @@ source:
 build:
   noarch: python
   number: 0
+  script: {{ PYTHON }} -m pip install . -vv
 
 requirements:
-  build:
-    - python
-    - setuptools
   host:
+    - pip
     - python >=3.6
 
   run:
