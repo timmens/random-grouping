@@ -4,6 +4,7 @@ import pandas as pd
 from randomgroups.algorithm import draw_candidate_matchings
 from randomgroups.algorithm import find_best_matching
 from randomgroups.algorithm import update_matchings_history
+from randomgroups.read_and_write import format_matching_as_str
 from randomgroups.read_and_write import read_names
 from randomgroups.read_and_write import read_or_create_matchings_history
 from randomgroups.read_and_write import write_matching
@@ -53,11 +54,14 @@ def create_groups(
 
     updated_history = update_matchings_history(matchings_history, best_matching)
 
+    best_matching_str = format_matching_as_str(best_matching, names)
     if output_path is not None:
         write_matchings_history(updated_history, output_path)
-        write_matching(best_matching, names, output_path)
+        write_matching(best_matching_str, output_path)
 
-    results = (best_matching, updated_history) if return_results else None
+    results = (
+        (best_matching_str, best_matching, updated_history) if return_results else None
+    )
     return results
 
 
@@ -101,5 +105,5 @@ def get_participants(names):
         participants (pd.Series): Series containing ids of individuals that will join.
 
     """
-    participants = names.query("joins == 1")["id"]
+    participants = names.query("joins == 1")["id"].astype(int)
     return participants

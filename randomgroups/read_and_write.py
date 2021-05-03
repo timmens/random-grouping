@@ -79,16 +79,15 @@ def write_matchings_history(updated_history, output_path):
     updated_history.to_csv(p)
 
 
-def write_matching(best_matching, names, output_path):
+def write_matching(text, output_path):
     """Write single matching to file.
 
     Args:
-        best_matching (list): Matching returned by func algorithm.find_best_matching
-        names (pd.DataFrame): Names data frame.
+        text (str): Formatted matching as str.
         output_path (str or pathlib.Path): Output path.
 
     Returns:
-        None
+        text (str): The best matching nicely formatted.
 
     """
     output_path = Path(output_path)
@@ -102,8 +101,8 @@ def write_matching(best_matching, names, output_path):
         fname = fname if len(fname) > 0 else "matching.txt"
         p = (output_path / fname).with_suffix(".txt")
 
-    text = _format_matching_as_str(best_matching, names)
     write_file(text, p)
+    return None
 
 
 def _create_matchings_history(names):
@@ -136,7 +135,7 @@ def write_file(to_write, path):
         f.write(to_write)
 
 
-def _format_matching_as_str(matching, names):
+def format_matching_as_str(matching, names):
     """Format matching in human readable string.
 
     Args:
