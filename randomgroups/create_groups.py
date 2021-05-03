@@ -104,6 +104,11 @@ def get_participants(names):
     Returns:
         participants (pd.Series): Series containing ids of individuals that will join.
 
+    Raises:
+        ValueError if ID column is not unique.
+
     """
     participants = names.query("joins == 1")["id"].astype(int)
+    if not participants.is_unique:
+        raise ValueError("ID column in names csv-file is not unique.")
     return participants
