@@ -19,6 +19,8 @@ dependencies:
   - pandas
   - numpy
 
+  - openpyxl
+
   - pytest
   - pdbpp
   - flake8

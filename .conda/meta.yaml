@@ -22,6 +22,7 @@ requirements:
     - click
     - numpy >=1.16
     - pandas >=0.24
+    - openpyxl >=3.0
 
 about:
   home: https://github.com/timmens/random-grouping

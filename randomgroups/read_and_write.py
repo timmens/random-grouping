@@ -5,16 +5,17 @@ import numpy as np
 import pandas as pd
 
 
-def read_names(names_path):
+def read_names(names_path, file_type="csv"):
     """Read names file.
 
     Reads names file if stored locally and downloads it if url is given instead. This
-    exepects that the csv is directly downloadable from the url. For example, if you
-    want to download a google sheet as a csv in the file settings of the google sheet
-    you have to publish the document as a css file to get the correct link.
+    exepects that the file is directly downloadable from the url. For example, if you
+    want to download a google sheet you have to publish the document in the file
+    settings of the google to get a "direct-download" link.
 
     Args:
         names_path (str or pathlib.Path): File path to or URL of names data file.
+        file_type (str): File type. Default csv. Currently supported: ["csv", "xlsx"].
 
     Returns:
         names (pd.DataFrame): df with columns 'id'(int), 'names'(str) and 'joins'(0/1).
@@ -24,7 +25,10 @@ def read_names(names_path):
         raise ValueError(
             "Argument 'names_path' is None. Please pass a valid names path."
         )
-    names = pd.read_csv(names_path)
+    if file_type in ("excel", "xlsx"):
+        file_type = "excel"
+    read_file = getattr(pd, f"read_{file_type}")
+    names = read_file(names_path)
     return names
 
 
