@@ -22,9 +22,9 @@ Use Case
 --------
 
 This package exports a single function called ``create_matching`` which can be used to
-to create matchings for different meetings from a varying but overlapping set of members.
-In particular the internal algorithm makes sure that group matchings in different
-meetings are mixed.
+to create matchings for different meetings from a varying but overlapping set of
+members. In particular the internal algorithm makes sure that group matchings in
+different meetings are mixed.
 
 
 Installation
