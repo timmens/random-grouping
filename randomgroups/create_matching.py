@@ -11,16 +11,17 @@ from randomgroups.read_and_write import write_matching
 from randomgroups.read_and_write import write_matchings_history
 
 
-def create_groups(
+def create_matching(
     names_path=None,
     matchings_history_path=None,
     output_path=None,
     min_size=3,
-    n_candidates=500,
+    n_candidates=1_000,
+    matching_params=None,
+    seed=0,
     return_results=False,
-    initial_seed=0,
 ):
-    """Create groupings.
+    """Create matching.
 
     Args:
         names_path (str or pathlib.Path): Local path to or URL of names data file.
@@ -28,11 +29,16 @@ def create_groups(
         output_path (str or pathlib.Path): Output path. If None output is not written.
         min_size (int): Minimum group size.
         n_candidates (int): Number of candidate groups to try during loss minimization.
-        initial_seed (int): Seed to pass to the seed generator.
+        matching_params (dict): Parameters that govern the behavior of the matching
+            criterion. Default None. For detais see ``_add_defaults_params``.
+        seed (int): Seed from which to start the seed generator.
+        return_results (bool): Indicates whether the results should be returned.
 
     Returns:
-        best_matching (list) and updated_history (pd.DataFrame) if argument
-            return_results is True, else None.
+        if return_results is True, returns dictionary with entries:
+        - best_matching_str (str)
+        - best_matching (list)
+        - updated_history (pd.DataFrame)
 
     """
     if output_path is None and return_results is False:
@@ -41,31 +47,42 @@ def create_groups(
             "either pass a valid output path or set return_results to True."
         )
 
+    matching_params = _add_default_params(matching_params)
+
     names = read_names(names_path)
     matchings_history = read_or_create_matchings_history(matchings_history_path, names)
 
-    matchings_history = add_new_individuals(matchings_history, names)
-    participants = get_participants(names)
+    matchings_history = _add_new_individuals(matchings_history, names)
 
-    candidates = draw_candidate_matchings(
-        participants, min_size, n_candidates, initial_seed
-    )
-    best_matching = find_best_matching(candidates, matchings_history)
+    participants = names.convert_dtypes().query("joins == 1").set_index("id")
+    if not participants.index.is_unique:
+        raise ValueError("ID column in names csv-file is not unique.")
+    if len(participants) < min_size:
+        raise ValueError("There are less participants than 'min_size'.")
+
+    #  we first draw many 'candidate' matchings that do not consider any criterion; then
+    #  we filter out the matching that best fulfills the required criteria
+    candidates = draw_candidate_matchings(participants, min_size, n_candidates, seed)
+    best_matching = find_best_matching(candidates, matchings_history, matching_params)
 
     updated_history = update_matchings_history(matchings_history, best_matching)
 
-    best_matching_str = format_matching_as_str(best_matching, names)
+    best_matching_str = format_matching_as_str(best_matching)
     if output_path is not None:
         write_matchings_history(updated_history, output_path)
         write_matching(best_matching_str, output_path)
 
-    results = (
-        (best_matching_str, best_matching, updated_history) if return_results else None
-    )
+    results = None
+    if return_results:
+        results = {
+            "best_matching_str": best_matching_str,
+            "best_matching": best_matching,
+            "updated_history": updated_history,
+        }
     return results
 
 
-def add_new_individuals(matchings_history, names):
+def _add_new_individuals(matchings_history, names):
     """Add new individuals to matchings_history data frame.
 
     Args:
@@ -95,20 +112,17 @@ def add_new_individuals(matchings_history, names):
     return updated
 
 
-def get_participants(names):
-    """Extract current participants from names data frame.
+def _add_default_params(matching_params):
+    param_names = ["faculty_multiplier"]
+    defaults = {
+        "faculty_multiplier": 3,
+    }
 
-    Args:
-        names (pd.DataFrame): names.csv file converted to pd.DataFrame
+    if matching_params is None:
+        matching_params = defaults
+    else:
+        for param in param_names:
+            if param not in matching_params.keys():
+                matching_params[param] = defaults[param]
 
-    Returns:
-        participants (pd.Series): Series containing ids of individuals that will join.
-
-    Raises:
-        ValueError if ID column is not unique.
-
-    """
-    participants = names.query("joins == 1")["id"].astype(int)
-    if not participants.is_unique:
-        raise ValueError("ID column in names csv-file is not unique.")
-    return participants
+    return matching_params

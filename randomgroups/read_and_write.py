@@ -18,7 +18,8 @@ def read_names(names_path, file_type="csv"):
         file_type (str): File type. Default csv. Currently supported: ["csv", "xlsx"].
 
     Returns:
-        names (pd.DataFrame): df with columns 'id'(int), 'names'(str) and 'joins'(0/1).
+        names (pd.DataFrame): df with columns 'id'(int), 'names'(str), 'joins'(0/1),
+            'status'(student/faculty) and 'wants_mixing'(0/1).
 
     """
     if names_path is None:
@@ -139,19 +140,17 @@ def write_file(to_write, path):
         f.write(to_write)
 
 
-def format_matching_as_str(matching, names):
+def format_matching_as_str(matching):
     """Format matching in human readable string.
 
     Args:
-        matching (list): Matching in list form. (BETTER EXPLAINATION)
-        names (pd.DataFrame): names df, see func ``read_names``
+        matching (list): Matching in list form.
 
     Returns:
         text (str): The formatted text as string.
 
     """
-    names = names.set_index("id").copy()
-    texts = [", ".join(names["name"].loc[group].values) for group in matching]
+    texts = [", ".join(group["name"].values) for group in matching]
     text = ""
     for k, text_ in enumerate(texts):
         text += f"Group {k}: {text_}\n"

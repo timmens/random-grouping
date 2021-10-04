@@ -1,4 +1,3 @@
-Group 0: Oleksii, Miriam, Paul G, Marcel
-Group 1: Fabio, Joern, Tim
-Group 2: Luis, Sebastian, Timothy
-Group 3: Daniel, Paul B, Yana
+Group 0: Sebastian, Fabio, Hannah, Lukas
+Group 1: Luis, Antonia, Lisa
+Group 2: Philipp, Mark, Daniel
