@@ -1,24 +1,12 @@
-id,name,joins
-0,Antonia E,0
-1,Daniel,0
-2,Fabio,0
-3,Joern,0
-4,Luis,1
-5,Malin,0
-6,Mark,0
-7,Melina,0
-8,Oleksii,1
-9,Paul B,1
-10,Paul G,0
-11,Philipp H,0
-12,Philipp S,0
-13,Sebastian,1
-14,Tim,1
-15,Timothy,0
-16,Alexandros,0
-17,Miriam,1
-18,Bilge,0
-19,Julius,0
-20,Marcel,1
-21,Lorenzo,0
-22,Yana,0
+id,name,joins,status,wants_mixing
+0,Antonia,1,student,0
+1,Daniel,1,student,0
+2,Fabio,1,faculty,0
+3,Lukas,1,faculty,0
+4,Luis,1,student,0
+5,Hannah,1,faculty,0
+6,Mark,1,student,0
+7,Melina,0,student,0
+8,Sebastian,1,faculty,0
+21,Philipp,1,student,0
+22,Lisa,1,student,0

@@ -3,7 +3,6 @@ randomgroups/__pycache__/
 .ipynb_checkpoints/
 Untitled.ipynb
 
-project/
-bugreport/
+tests/
 
 *.egg-info/
