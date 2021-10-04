@@ -66,12 +66,12 @@ the following lines in a Python shell
 
 .. code-block:: Python3
 
-    from randomgroups import create_groups
+    from randomgroups import create_matching
 
     names_path = "/path/to/names.csv"
     output_path = "/path/to/folder/where/to/store/output/data"
 
-    create_groups(
+    create_matching(
         names_path=names_path,
         output_path=output_path,
         min_size=3,
@@ -99,6 +99,16 @@ be passed to ``names_path``.
 Once the file ``matchings_history.csv`` has been created one can further pass the path
 of this file to the function call via ``matchings_history_path=...``. The previous
 matchings will then influence new group formations.
+
+
+**Assortative Matching:**
+
+The 'status' column in the names csv-file allows one to distuingish between 'student'
+and 'faculty'. One can then use the 'wans_mixing' column to specify whether an
+individual wants to be mixed with people from another group. This is not absolute.
+A float parameter ("faculty_multiplier") can be specified in a dictionary an passed
+to the main function via the argument "matching_params". If this parameter is very
+high it will be less likely that faculty that does not want to mix is mixed.
 
 
 Contributing
