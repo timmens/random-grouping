@@ -54,7 +54,8 @@ def create_matching(
 
     matchings_history = _add_new_individuals(matchings_history, names)
 
-    participants = names.convert_dtypes().query("joins == 1").set_index("id")
+    participants = names.query("joins == 1").set_index("id")
+    participants = participants.convert_dtypes()
     if not participants.index.is_unique:
         raise ValueError("ID column in names csv-file is not unique.")
     if len(participants) < min_size:
