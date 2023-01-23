@@ -104,7 +104,7 @@ matchings will then influence new group formations.
 **Assortative Matching:**
 
 The 'status' column in the names csv-file allows one to distuingish between 'student'
-and 'faculty'. One can then use the 'wans_mixing' column to specify whether an
+and 'faculty'. One can then use the 'wants_mixing' column to specify whether an
 individual wants to be mixed with people from another group. This is not absolute.
 A float parameter ("faculty_multiplier") can be specified in a dictionary an passed
 to the main function via the argument "matching_params". If this parameter is very
