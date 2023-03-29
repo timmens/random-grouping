@@ -9,7 +9,7 @@ def read_names(names_path, file_type="csv"):
     """Read names file.
 
     Reads names file if stored locally and downloads it if url is given instead. This
-    exepects that the file is directly downloadable from the url. For example, if you
+    expects that the file is directly downloadable from the url. For example, if you
     want to download a google sheet you have to publish the document in the file
     settings of the google to get a "direct-download" link.
 
@@ -45,7 +45,7 @@ def read_or_create_matchings_history(matchings_history_path, names):
     Returns:
         matchings_history (pd.DataFrame): df with columns and rows equal to the 'id'
             column in names df (see func ``read_names``). Cell entries represent number
-            meetings of the row individual with the column indidivual.
+            meetings of the row individual with the column individual.
 
     """
     if matchings_history_path is None:
@@ -141,7 +141,7 @@ def write_file(to_write, path):
 
 
 def format_matching_as_str(matching):
-    """Format matching in human readable string.
+    """Format matching in human-readable string.
 
     Args:
         matching (list): Matching in list form.

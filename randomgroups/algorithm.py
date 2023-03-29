@@ -14,7 +14,7 @@ def find_best_matching(
         matchings_history (pd.DataFrame): Square df containing group information. Index
             and column is given by the 'id' column in src/data/names.csv.
         matching_params (dict): Parameters that govern the behavior of the matching
-            criterion. Default None. For detais see ``_add_defaults_params``.
+            criterion. Default None. For details see ``_add_defaults_params``.
         penalty_func (callable): Penalty function, defaults to np.exp. Is applied to
             punish large values in matchings_history.
 
@@ -69,7 +69,7 @@ def _compute_assortativity_score(matching, matching_params):
 
     Args:
         matching (list): Matching.
-        matching_params (dict): Dictionary containig matching parameters.
+        matching_params (dict): Dictionary containing matching parameters.
 
     Returns:
         score (float): The corresponding score.
@@ -148,8 +148,7 @@ def _create_candidate_matching(participants, min_size, seed):
             'joins'(0/1), 'status'(student/faculty) and 'wants_mixing'(0/1)'. But only
             rows with joins equal to 1 are selected.
         min_size (int): Minimum group size.
-        n_candidates (int): Number of candidate groups to simulate.
-        initial_seed (int): Initial seed to pass to the seed generator.
+        seed (int): Initial seed to pass to the seed generator.
 
     Returns:
         candidate (list): Matching candidate.
