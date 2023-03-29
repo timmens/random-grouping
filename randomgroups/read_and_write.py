@@ -60,13 +60,13 @@ def read_or_create_matchings_history(matchings_history_path, names):
     return matchings_history
 
 
-def write_matchings_history(updated_history, output_path, overwrite=True):
+def write_matchings_history(updated_history, output_path, overwrite=False):
     """Write matchings history to file.
 
     Args:
         updated_history (pd.DataFrame): Updated matchings history.
         output_path (str or pathlib.Path): Output path.
-        overwrite (bool): If True, check if file exists and ask for overwrite.
+        overwrite (bool): If False, check if file exists and ask for overwrite.
 
     Returns:
         None
@@ -74,7 +74,7 @@ def write_matchings_history(updated_history, output_path, overwrite=True):
     """
     output_path = Path(output_path)
     p = output_path / "updated_matchings_history.csv"
-    if overwrite and p.is_file():
+    if not overwrite and p.is_file():
         fname = click.prompt(
             f"File {p} exists. Please enter other name or nothing to overwrite.",
             type=str,
@@ -85,13 +85,13 @@ def write_matchings_history(updated_history, output_path, overwrite=True):
     updated_history.to_csv(p)
 
 
-def write_matching(text, output_path, overwrite=True):
+def write_matching(text, output_path, overwrite=False):
     """Write single matching to file.
 
     Args:
         text (str): Formatted matching as str.
         output_path (str or pathlib.Path): Output path.
-        overwrite (bool): If True, check if file exists and ask for overwrite.
+        overwrite (bool): If False, check if file exists and ask for overwrite.
 
     Returns:
         text (str): The best matching nicely formatted.
@@ -99,7 +99,7 @@ def write_matching(text, output_path, overwrite=True):
     """
     output_path = Path(output_path)
     p = output_path / "matching.txt"
-    if overwrite and p.is_file():
+    if not overwrite and p.is_file():
         fname = click.prompt(
             f"File {p} exists. Please enter other name or nothing for overwrite.",
             type=str,
