@@ -20,7 +20,7 @@ def create_matching(
     matching_params=None,
     seed=0,
     return_results=False,
-    check_overwrite=True,
+    overwrite=True,
 ):
     """Create matching.
 
@@ -34,7 +34,7 @@ def create_matching(
             criterion. Default None. For detais see ``_add_defaults_params``.
         seed (int): Seed from which to start the seed generator.
         return_results (bool): Indicates whether the results should be returned.
-        check_overwrite (bool): Whether to check for overwrite of files.
+        overwrite (bool): Whether to check for overwrite of files.
 
     Returns:
         if return_results is True, returns dictionary with entries:
@@ -72,8 +72,8 @@ def create_matching(
 
     best_matching_str = format_matching_as_str(best_matching)
     if output_path is not None:
-        write_matchings_history(updated_history, output_path, check_overwrite)
-        write_matching(best_matching_str, output_path, check_overwrite)
+        write_matchings_history(updated_history, output_path, overwrite)
+        write_matching(best_matching_str, output_path, overwrite)
 
     results = None
     if return_results:
