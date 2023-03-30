@@ -15,7 +15,7 @@ def create_matching(
     names_path=None,
     matchings_history_path=None,
     output_path=None,
-    min_size=3,
+    min_size=2,
     n_groups=None,
     max_size=None,
     n_candidates=1_000,
@@ -52,10 +52,12 @@ def create_matching(
             "either pass a valid output path or set return_results to True."
         )
 
-    if min_size is None and n_groups is None:
-        raise ValueError(
-            "Either min_size or n_groups must be set to determine the minimal size of groups."
-        )
+    # check if max_size is valid
+    if max_size is not None:
+        if min_size > max_size:
+            raise ValueError(
+                f"min_size ({min_size}) must be smaller than max_size ({max_size})."
+            )
 
     matching_params = _add_default_params(matching_params)
 
@@ -72,11 +74,11 @@ def create_matching(
     # if n_groups is set, we set min_size accordingly to get n_groups
     if n_groups is not None:
         group_min_size = len(participants) // n_groups
-        if min_size is not None and min_size > group_min_size:
+        if min_size > group_min_size:
             raise ValueError(
                 f"There are not enough participants ({len(participants)}) to create "
                 f"{n_groups} groups with at least {min_size} members. "
-                "Please decrease n_groups or increase min_size, or set one of them to None."
+                "Please decrease n_groups or decrease min_size."
             )
         else:
             min_size = group_min_size
@@ -87,26 +89,29 @@ def create_matching(
 
     # we check if max_size is set
     if max_size is not None:
-        # check if max_size is valid
-        if max_size < min_size:
-            raise ValueError(
-                f"max_size ({max_size}) must be greater than min_size ({min_size}). "
-                f"This can also happen if n_groups is set too small."
-            )
+        n_to_exclude = 0
+        if n_groups is not None:
+            # n_groups is set, need to adjust min_size accordingly
+            # already checked that min_size < max_size
+            n_to_exclude = len(participants) - n_groups * max_size
+            if n_to_exclude > 0:
+                min_size = (len(participants)-n_to_exclude) // n_groups
         elif max_size == min_size:
             # check if we need to exclude participants in order to have groups size = max_size
-            n_excluded = len(participants) % max_size
-            if n_excluded > 0:
-                # we exclude those people with most matchings (and first to appear in the name list)
-                # this is not optimal with regard to mixing people
-                n_matches = matchings_history.loc[participants.index].sum(axis=1).sort_values(ascending=False)
-                included_ids = n_matches[n_excluded:].index
-                print('Excluded participants:', participants.loc[n_matches[:n_excluded].index, 'name'].to_list())
-                participants = participants.loc[included_ids]
+            n_to_exclude = len(participants) % max_size
         else:
+            # if n_groups is not set:
             # groups produced by the algorithm will be maximal of size min_size+1
             # only if max_size == min_size we need to do something
             pass
+
+        if n_to_exclude > 0:
+            # we exclude those people with most matchings (and first to appear in the name list)
+            # this is not optimal with regard to mixing people
+            n_matches = matchings_history.loc[participants.index].sum(axis=1).sort_values(ascending=False)
+            included_ids = n_matches[n_to_exclude:].index
+            print('Excluded participants:', participants.loc[n_matches[:n_to_exclude].index, 'name'].to_list())
+            participants = participants.loc[included_ids]
 
     #  we first draw many 'candidate' matchings that do not consider any criterion; then
     #  we filter out the matching that best fulfills the required criteria
