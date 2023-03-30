@@ -1,47 +1,101 @@
+---
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0
+  - repo: meta
     hooks:
-    -   id: check-merge-conflict
-    -   id: debug-statements
-    -   id: end-of-file-fixer
--   repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.4.0
+      - id: check-hooks-apply
+      - id: check-useless-excludes
+        # - id: identity  # Prints all files passed to pre-commits. Debugging.
+  - repo: https://github.com/lyz-code/yamlfix
+    rev: 1.9.0
     hooks:
-    -   id: reorder-python-imports
-        types: [python]
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.4.0
+      - id: yamlfix
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
     hooks:
-    -   id: check-yaml
-        exclude: .conda/meta.yaml
--   repo: https://github.com/asottile/blacken-docs
-    rev: v1.9.2
-    hooks:
-    -   id: blacken-docs
-        additional_dependencies: [black]
-        types: [rst]
--   repo: https://github.com/psf/black
-    rev: 20.8b1
-    hooks:
-    -   id: black
-        types: [python]
-        args: [--line-length=88]
--   repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.4
-    hooks:
-    -   id: flake8
-        types: [python]
-        # exclude: setup.py src/__init__.py
-        additional_dependencies: [
-            flake8-alfred, flake8-bugbear, flake8-builtins, flake8-comprehensions,
-            flake8-docstrings, flake8-eradicate, flake8-print, flake8-rst-docstrings,
-            flake8-todo, pep8-naming, pydocstyle,
-        ]
+      - id: check-added-large-files
         args:
-            - --ignore=D100 D104 RST201 RST203 RST301
-            - --max-line-length=88
--   repo: meta
+          - --maxkb=1300
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-vcs-permalinks
+      - id: check-yaml
+      - id: check-toml
+      - id: debug-statements
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+        types:
+          - text
+      - id: forbid-submodules
+      - id: mixed-line-ending
+        args:
+          - --fix=lf
+        description: Forces to replace line ending by the UNIX 'lf' character.
+          # - id: name-tests-test
+          #   args:
+          #     - --pytest-test-first
+      - id: no-commit-to-branch
+        args:
+          - --branch
+          - main
+      - id: trailing-whitespace
+      - id: check-ast
+      - id: check-docstring-first
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.29.0
     hooks:
-    -   id: check-hooks-apply
-    -   id: check-useless-excludes
+      - id: yamllint
+  - repo: https://github.com/psf/black
+    rev: 23.1.0
+    hooks:
+      - id: black
+        language_version: python3.10
+  - repo: https://github.com/asottile/blacken-docs
+    rev: 1.13.0
+    hooks:
+      - id: blacken-docs
+  - repo: https://github.com/PyCQA/docformatter
+    rev: v1.5.1
+    hooks:
+      - id: docformatter
+        args:
+          - --in-place
+          - --wrap-summaries
+          - '88'
+          - --wrap-descriptions
+          - '88'
+          - --blank
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.254
+    hooks:
+      - id: ruff
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.6.3
+    hooks:
+      - id: nbqa-black
+      - id: nbqa-ruff
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.16
+    hooks:
+      - id: mdformat
+        additional_dependencies:
+          - mdformat-gfm
+          - mdformat-black
+        args:
+          - --wrap
+          - '88'
+        files: (README\.md)
+  - repo: https://github.com/asottile/setup-cfg-fmt
+    rev: v2.2.0
+    hooks:
+      - id: setup-cfg-fmt
+  - repo: https://github.com/mgedmin/check-manifest
+    rev: '0.49'
+    hooks:
+      - id: check-manifest
+        args:
+          - --no-build-isolation
+        additional_dependencies:
+          - setuptools-scm
+          - toml
+ci:
+  autoupdate_schedule: monthly

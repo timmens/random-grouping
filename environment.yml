@@ -1,30 +1,23 @@
+---
 name: randomgroups
-
 channels:
   - defaults
   - conda-forge
-
 dependencies:
   - python=3.8
   - pip
   - click
-
   - ipykernel
   - jupyterlab
   - nb_conda_kernels
-
   - anaconda-client
   - conda-build
-
   - pandas
   - numpy
-
   - openpyxl
-
   - pytest
   - pdbpp
   - flake8
-
   - pip:
       - black
       - blackcellmagic
