@@ -1,14 +1,11 @@
-![image](.image.png){width="500px"}
+![image](.image.png)
 
 [![image](https://anaconda.org/timmens/randomgroups/badges/version.svg)](https://anaconda.org/timmens/randomgroups)
-
 [![image](https://anaconda.org/timmens/randomgroups/badges/platforms.svg)](https://anaconda.org/timmens/randomgroups)
-
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
 [![image](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-
-[![image](https://github.com/timmens/random-grouping/actions/workflows/python-package-conda.yml/badge.svg)](https://github.com/timmens/random-grouping/actions/workflows/python-package-conda.yml)
+[![image](https://codecov.io/gh/timmens/randomgroups/branch/main/graph/badge.svg)](https://codecov.io/gh/timmens/randomgroups)
+[![image](https://results.pre-commit.ci/badge/github/timmens/randomgroups/main.svg)](https://github.com/timmens/randomgroups/actions?query=branch%3Amain)
 
 # Use Case
 
