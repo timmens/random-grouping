@@ -1,0 +1,11 @@
+---
+name: randomgroups
+channels:
+  - conda-forge
+dependencies:
+  - click
+  - pandas
+  - numpy
+  - openpyxl
+  - pytest
+  - pytest-cov

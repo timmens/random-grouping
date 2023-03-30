@@ -76,9 +76,8 @@ def _compute_assortativity_score(matching, matching_params):
 
     """
     score = 0
-    for group in matching:
-
-        group = group.copy()
+    for _group in matching:
+        group = _group.copy()
         wants_assortative = 1 - group.wants_mixing
         wants_assortative.loc[group.status == "faculty"] *= matching_params[
             "faculty_multiplier"
