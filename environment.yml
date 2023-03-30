@@ -22,3 +22,4 @@ dependencies:
       - black
       - blackcellmagic
       - pre-commit
+      - -e .
