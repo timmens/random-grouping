@@ -4,11 +4,11 @@ import pandas as pd
 from randomgroups.algorithm import draw_candidate_matchings
 from randomgroups.algorithm import find_best_matching
 from randomgroups.algorithm import update_matchings_history
-from randomgroups.read_and_write import format_matching_as_str
-from randomgroups.read_and_write import read_names
-from randomgroups.read_and_write import read_or_create_matchings_history
-from randomgroups.read_and_write import write_matching
-from randomgroups.read_and_write import write_matchings_history
+from randomgroups.io import format_matching_as_str
+from randomgroups.io import read_names
+from randomgroups.io import read_or_create_matchings_history
+from randomgroups.io import write_matching
+from randomgroups.io import write_matchings_history
 
 
 def create_matching(
