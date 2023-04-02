@@ -123,6 +123,8 @@ def test_create_matchings_history():
             "name": ["Alice", "Bob"],
         }
     )
-    expected = pd.DataFrame(np.zeros((2, 2), dtype=int), columns=[1, 2], index=[1, 2])
+    expected = pd.DataFrame(
+        np.zeros((2, 2), dtype=np.int64), columns=[1, 2], index=[1, 2]
+    )
     got = _create_matchings_history(names)
     assert_frame_equal(expected, got)

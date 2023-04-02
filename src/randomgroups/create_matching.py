@@ -164,7 +164,7 @@ def _add_new_individuals(matchings_history, names):
     if n_new == 0:
         updated = matchings_history.copy()
     else:
-        updated = np.zeros((n_old + n_new, n_old + n_new), dtype=int)
+        updated = np.zeros((n_old + n_new, n_old + n_new), dtype=np.int64)
         updated[:n_old, :n_old] = matchings_history.values
         updated = pd.DataFrame(
             updated,

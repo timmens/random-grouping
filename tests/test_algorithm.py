@@ -11,13 +11,13 @@ from pandas.testing import assert_frame_equal
 
 
 def test_compute_history_score_no_matchings():
-    matchings_history = pd.DataFrame(np.zeros((2, 2), dtype=int))
+    matchings_history = pd.DataFrame(np.zeros((2, 2), dtype=np.int64))
     got = _compute_history_score(matchings_history, penalty_func=np.exp)
     assert np.allclose(got, 1.0)
 
 
 def test_compute_history_score_one_matching():
-    matchings_history = pd.DataFrame(np.ones((2, 2), dtype=int))
+    matchings_history = pd.DataFrame(np.ones((2, 2), dtype=np.int64))
     got = _compute_history_score(matchings_history, penalty_func=np.exp)
     assert np.allclose(got, np.exp(1.0))
 
@@ -70,11 +70,11 @@ def test_create_candidate_matching_shuffled():
 
 
 def test_update_matchings_history():
-    matchings_history = pd.DataFrame(np.zeros((3, 3), dtype=int))
+    matchings_history = pd.DataFrame(np.zeros((3, 3), dtype=np.int64))
     matching = [
         pd.DataFrame({"name": ["Alice", "Bob"]}, index=[0, 1]),
         pd.DataFrame({"name": ["Jake"]}, index=[2]),
     ]
-    expected = pd.DataFrame([[0, 1, 0], [1, 0, 0], [0, 0, 0]], dtype=int)
+    expected = pd.DataFrame([[0, 1, 0], [1, 0, 0], [0, 0, 0]], dtype=np.int64)
     got = update_matchings_history(matchings_history, matching)
     assert_frame_equal(expected, got)
