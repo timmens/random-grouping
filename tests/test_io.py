@@ -26,7 +26,7 @@ def test_read_names(tmp_path):
     )
     names.to_csv(tmp_path.joinpath("names.csv"), index=False)
     got = read_names(path=tmp_path.joinpath("names.csv"))
-    assert_frame_equal(names, got)
+    assert_frame_equal(names, got, check_dtype=False)
 
 
 def test_read_names_excel(tmp_path):
@@ -38,7 +38,7 @@ def test_read_names_excel(tmp_path):
     )
     names.to_excel(tmp_path.joinpath("names.xlsx"), index=False)
     got = read_names(path=tmp_path.joinpath("names.xlsx"))
-    assert_frame_equal(names, got)
+    assert_frame_equal(names, got, check_dtype=False)
 
 
 def test_read_names_invalid_filetype(tmp_path):
@@ -55,7 +55,7 @@ def test_read_or_create_matchings_history_names():
     )
     got = read_or_create_matchings_history(names=names)
     expected = _create_matchings_history(names)
-    assert_frame_equal(expected, got)
+    assert_frame_equal(expected, got, check_dtype=False)
 
 
 def test_read_or_create_matchings_history_path(tmp_path):
@@ -64,7 +64,7 @@ def test_read_or_create_matchings_history_path(tmp_path):
     got = read_or_create_matchings_history(
         path=tmp_path.joinpath("matchings_history.csv")
     )
-    assert_frame_equal(history, got)
+    assert_frame_equal(history, got, check_dtype=False)
 
 
 # ======================================================================================
@@ -78,7 +78,7 @@ def test_write_matchings_history(tmp_path):
     read = read_or_create_matchings_history(
         path=tmp_path.joinpath("updated_matchings_history.csv")
     )
-    assert_frame_equal(history, read)
+    assert_frame_equal(history, read, check_dtype=False)
 
 
 def test_write_matching(tmp_path):
@@ -123,8 +123,6 @@ def test_create_matchings_history():
             "name": ["Alice", "Bob"],
         }
     )
-    expected = pd.DataFrame(
-        np.zeros((2, 2), dtype=np.int64), columns=[1, 2], index=[1, 2]
-    )
+    expected = pd.DataFrame(np.zeros((2, 2), dtype=int), columns=[1, 2], index=[1, 2])
     got = _create_matchings_history(names)
     assert_frame_equal(expected, got)

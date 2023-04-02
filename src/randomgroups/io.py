@@ -76,8 +76,8 @@ def read_or_create_matchings_history(
     if path is None:
         matchings_history = _create_matchings_history(names)
     else:
-        matchings_history = pd.read_csv(path, index_col=0, header=0, dtype=np.int64)
-        matchings_history.columns = matchings_history.columns.astype(np.int64)
+        matchings_history = pd.read_csv(path, index_col=0, header=0, dtype=int)
+        matchings_history.columns = matchings_history.columns.astype(int)
 
     return matchings_history
 
@@ -165,7 +165,7 @@ def _create_matchings_history(names: pd.DataFrame) -> pd.DataFrame:
 
     """
     matchings_history = pd.DataFrame(
-        np.zeros((len(names), len(names)), dtype=np.int64),
+        np.zeros((len(names), len(names)), dtype=int),
         columns=names.id.values,
         index=names.id.values,
     )

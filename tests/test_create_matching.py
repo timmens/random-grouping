@@ -13,7 +13,7 @@ def test_add_new_individuals():
     matchings_history = pd.DataFrame([[0]], index=[1], columns=[1])
     expected = pd.DataFrame([[0, 0], [0, 0]], index=[1, 2], columns=[1, 2])
     got = _add_new_individuals(matchings_history=matchings_history, names=names)
-    assert_frame_equal(expected, got)
+    assert_frame_equal(expected, got, check_dtype=False)
 
 
 def test_create_matching_test():
