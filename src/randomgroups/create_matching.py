@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from pathlib import Path
+from typing import Union
 
 from randomgroups.algorithm import draw_candidate_matchings
 from randomgroups.algorithm import find_optimal_matching
@@ -12,16 +14,16 @@ from randomgroups.io import write_matchings_history
 
 
 def create_matching(
-    names_path=None,
-    matchings_history_path=None,
-    output_path=None,
-    min_size=3,
-    penalty_func=np.exp,
-    faculty_multiplier=3.0,
-    n_candidates=1_000,
-    seed=0,
-    return_results=False,
-    overwrite=False,
+    names_path: Union[str, Path] = None,
+    matchings_history_path: Union[str, Path] = None,
+    output_path: Union[str, Path] = None,
+    min_size: int = 3,
+    penalty_func: callable = np.exp,
+    faculty_multiplier: float = 3.0,
+    n_draws: int = 1_000,
+    seed: int = 12345,
+    return_results: bool = False,
+    overwrite: bool = False,
 ):
     """Create matching.
 
@@ -46,50 +48,88 @@ def create_matching(
         - updated_history (pd.DataFrame)
 
     """
+    # ==================================================================================
+    # Input validation
+    # ==================================================================================
+
     if output_path is None and return_results is False:
         raise ValueError(
-            "No output path is given and return_results is set to False. Please"
-            "either pass a valid output path or set return_results to True."
+            "No output path is given and return_results is set to False. Please either "
+            "pass a valid output path or set return_results to True."
         )
 
-    names = read_names(names_path)
-    matchings_history = read_or_create_matchings_history(matchings_history_path, names)
+    names_path = Path(names_path)
+    matchings_history_path = Path(matchings_history_path)
+    output_path = None if output_path is None else Path(output_path)
 
-    matchings_history = _add_new_individuals(matchings_history, names)
+    test_penalties = penalty_func(np.array([1, 2, 3]))
+    if not isinstance(test_penalties, np.ndarray) or len(test_penalties) != 3:
+        raise ValueError(
+            "penalty_func must return a numpy array of the same length as the input "
+            "array."
+        )
+
+    # ==================================================================================
+    # Read and verify data
+    # ==================================================================================
+
+    names = read_names(names_path)
 
     participants = names.query("joins == 1").set_index("id")
     participants = participants.convert_dtypes()
+
     if not participants.index.is_unique:
-        raise ValueError("ID column in names csv-file is not unique.")
+        raise ValueError("id column in names table is not unique.")
     if len(participants) < min_size:
         raise ValueError("There are less participants than 'min_size'.")
 
-    #  we first draw many 'candidate' matchings that do not consider any criterion; then
-    #  we filter out the matching that best fulfills the required criteria
-    candidates = draw_candidate_matchings(participants, min_size, n_candidates, seed)
+    matchings_history = read_or_create_matchings_history(
+        names=names,
+        path=matchings_history_path,
+    )
+    matchings_history = _add_new_individuals(
+        matchings_history=matchings_history,
+        names=names,
+    )
+
+    # ==================================================================================
+    # Algorithm: Optimization using random sampling
+    # ==================================================================================
+
+    rng = np.random.default_rng(seed)
+
+    list_of_matchings = draw_candidate_matchings(
+        participants=participants, min_size=min_size, n_draws=n_draws, rng=rng
+    )
 
     optimal_matching = find_optimal_matching(
-        candidates=candidates,
+        candidates=list_of_matchings,
         matchings_history=matchings_history,
         penalty_func=penalty_func,
         faculty_multiplier=faculty_multiplier,
     )
 
+    # ==================================================================================
+    # Prepare results
+    # ==================================================================================
+
     updated_history = update_matchings_history(matchings_history, optimal_matching)
 
-    best_matching_str = format_matching_as_str(optimal_matching)
-    if output_path is not None:
-        write_matchings_history(updated_history, output_path, overwrite)
-        write_matching(best_matching_str, output_path, overwrite)
+    matching_str_repr = format_matching_as_str(optimal_matching)
 
-    results = None
+    if output_path is not None:
+        write_matchings_history(
+            history=updated_history, path=output_path, overwrite=overwrite
+        )
+        write_matching(text=matching_str_repr, path=output_path, overwrite=overwrite)
+
     if return_results:
         results = {
-            "best_matching_str": best_matching_str,
-            "best_matching": optimal_matching,
+            "matching_str": matching_str_repr,
+            "matching": optimal_matching,
             "updated_history": updated_history,
         }
-    return results
+        return results
 
 
 def _add_new_individuals(matchings_history, names):
@@ -115,8 +155,12 @@ def _add_new_individuals(matchings_history, names):
     if n_new == 0:
         updated = matchings_history.copy()
     else:
-        to_append = pd.DataFrame(np.zeros(n_new, n_old), dtype=int, index=new_ids)
-        updated = pd.concat((matchings_history, to_append), axis=0)
-        updated = pd.concat((updated, to_append), axis=1)
+        updated = np.zeros((n_old + n_new, n_old + n_new), dtype=int)
+        updated[:n_old, :n_old] = matchings_history.values
+        updated = pd.DataFrame(
+            updated,
+            index=names_id,
+            columns=names_id,
+        )
 
     return updated

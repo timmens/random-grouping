@@ -1,3 +1,2 @@
-Group 0: Sebastian, Fabio, Hannah, Lukas
-Group 1: Luis, Antonia, Lisa
-Group 2: Philipp, Mark, Daniel
+Group 0: Antonia, Lukas
+Group 1: Daniel, Fabio

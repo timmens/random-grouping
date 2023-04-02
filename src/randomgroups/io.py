@@ -172,18 +172,18 @@ def _create_matchings_history(names: pd.DataFrame) -> pd.DataFrame:
     return matchings_history
 
 
-def format_matching_as_str(matching: List[List[str]]) -> str:
+def format_matching_as_str(matching: List[pd.DataFrame]) -> str:
     """Format matching in human readable string.
 
     Args:
-        matching (list):
+        matching (List[pd.DataFrame]): Matching.
 
     Returns:
         str: The formatted text as string.
 
     """
-    texts = [", ".join(group["name"].values) for group in matching]
-    text = ""
-    for k, _text in enumerate(texts):
-        text += f"Group {k}: {_text}\n"
-    return text
+    texts = [", ".join(group.name.values) for group in matching]
+    formatted = ""
+    for k, text in enumerate(texts):
+        formatted += f"Group {k}: {text}\n"
+    return formatted
