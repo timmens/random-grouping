@@ -12,7 +12,7 @@ coverage:
         target: 90%
     project:
       default:
-        target: 20%
+        target: 90%
 ignore:
   - setup.py
   - tests/**/*
