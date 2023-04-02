@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from randomgroups.algorithm import draw_candidate_matchings
-from randomgroups.algorithm import find_best_matching
+from randomgroups.algorithm import find_optimal_matching
 from randomgroups.algorithm import update_matchings_history
 from randomgroups.io import format_matching_as_str
 from randomgroups.io import read_names
@@ -16,8 +16,9 @@ def create_matching(
     matchings_history_path=None,
     output_path=None,
     min_size=3,
+    penalty_func=np.exp,
+    faculty_multiplier=3.0,
     n_candidates=1_000,
-    matching_params=None,
     seed=0,
     return_results=False,
     overwrite=False,
@@ -29,9 +30,11 @@ def create_matching(
         matchings_history_path (str or pathlib.Path): Path to matchings history file.
         output_path (str or pathlib.Path): Output path. If None output is not written.
         min_size (int): Minimum group size.
+        penalty_func (callable): Penalty function, defaults to np.exp. Is applied to
+            punish large values in matchings_history.
+        faculty_multiplier (float): Multiplier determining how much faculty members
+            want to stay in the same group.
         n_candidates (int): Number of candidate groups to try during loss minimization.
-        matching_params (dict): Parameters that govern the behavior of the matching
-            criterion. Default None. For detais see ``_add_defaults_params``.
         seed (int): Seed from which to start the seed generator.
         return_results (bool): Indicates whether the results should be returned.
         overwrite (bool): Whether to overwrite output files.
@@ -49,8 +52,6 @@ def create_matching(
             "either pass a valid output path or set return_results to True."
         )
 
-    matching_params = _add_default_params(matching_params)
-
     names = read_names(names_path)
     matchings_history = read_or_create_matchings_history(matchings_history_path, names)
 
@@ -66,11 +67,17 @@ def create_matching(
     #  we first draw many 'candidate' matchings that do not consider any criterion; then
     #  we filter out the matching that best fulfills the required criteria
     candidates = draw_candidate_matchings(participants, min_size, n_candidates, seed)
-    best_matching = find_best_matching(candidates, matchings_history, matching_params)
 
-    updated_history = update_matchings_history(matchings_history, best_matching)
+    optimal_matching = find_optimal_matching(
+        candidates=candidates,
+        matchings_history=matchings_history,
+        penalty_func=penalty_func,
+        faculty_multiplier=faculty_multiplier,
+    )
 
-    best_matching_str = format_matching_as_str(best_matching)
+    updated_history = update_matchings_history(matchings_history, optimal_matching)
+
+    best_matching_str = format_matching_as_str(optimal_matching)
     if output_path is not None:
         write_matchings_history(updated_history, output_path, overwrite)
         write_matching(best_matching_str, output_path, overwrite)
@@ -79,7 +86,7 @@ def create_matching(
     if return_results:
         results = {
             "best_matching_str": best_matching_str,
-            "best_matching": best_matching,
+            "best_matching": optimal_matching,
             "updated_history": updated_history,
         }
     return results
@@ -113,19 +120,3 @@ def _add_new_individuals(matchings_history, names):
         updated = pd.concat((updated, to_append), axis=1)
 
     return updated
-
-
-def _add_default_params(matching_params):
-    param_names = ["faculty_multiplier"]
-    defaults = {
-        "faculty_multiplier": 3,
-    }
-
-    if matching_params is None:
-        matching_params = defaults
-    else:
-        for param in param_names:
-            if param not in matching_params.keys():
-                matching_params[param] = defaults[param]
-
-    return matching_params

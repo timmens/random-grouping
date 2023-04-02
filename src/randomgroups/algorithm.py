@@ -1,44 +1,48 @@
 from itertools import combinations
-from itertools import count
+from typing import List
 
 import numpy as np
+import pandas as pd
 
 
-def find_best_matching(
-    candidates, matchings_history, matching_params, penalty_func=None
-):
+def find_optimal_matching(
+    candidates: List[List[pd.DataFrame]],
+    matchings_history: pd.DataFrame,
+    penalty_func: callable,
+    faculty_multiplier: float,
+) -> List[pd.DataFrame]:
     """Find best matching from list of candidates.
 
     Args:
         candidates (list): List of matching candidates.
         matchings_history (pd.DataFrame): Square df containing group information. Index
             and column is given by the 'id' column in src/data/names.csv.
-        matching_params (dict): Parameters that govern the behavior of the matching
-            criterion. Default None. For detais see ``_add_defaults_params``.
         penalty_func (callable): Penalty function, defaults to np.exp. Is applied to
             punish large values in matchings_history.
+        faculty_multiplier (float): Multiplier determining how much faculty members
+            want to stay in the same group.
 
     Returns:
-        best_matching (list): Matching that minimizes the criterion.
+        List[pd.DataFrame]: Matching that minimizes the criterion.
 
     """
-    criterion = np.empty(len(candidates))
-    for k, candidate in enumerate(candidates):
-        updated_history = update_matchings_history(matchings_history, candidate)
-        score_for_history = _compute_history_score(updated_history, penalty_func)
-        score_for_assortativity = _compute_assortativity_score(
-            candidate, matching_params
-        )
-        criterion[k] = score_for_history + score_for_assortativity
+    criterion_values = []
+    for matching in candidates:
+        updated_history = update_matchings_history(matchings_history, matching)
+        history_score = _compute_history_score(updated_history, penalty_func)
+        assortativity_score = _compute_assortativity_score(matching, faculty_multiplier)
+        criterion_values.append(history_score + assortativity_score)
 
-    best_matching = candidates[np.argmin(criterion)]
-    return best_matching
+    optimal_matching = candidates[np.argmin(criterion_values)]
+    return optimal_matching
 
 
-def _compute_history_score(matchings_history, penalty_func=None):
+def _compute_history_score(
+    matchings_history: pd.DataFrame, penalty_func: callable
+) -> float:
     """Compute score of grouping matrix.
 
-    Scores grouping matrix such that having many large values is penalized.
+    Scores grouping matrix such that having many large values are penalized.
 
     Args:
         matchings_history (pd.DataFrame): Square df containing group information. Index
@@ -50,10 +54,9 @@ def _compute_history_score(matchings_history, penalty_func=None):
         score (float): Score of grouping matrix.
 
     """
-    penalty_func = np.exp if penalty_func is None else penalty_func
-
     values = matchings_history.values
-    tril = np.tril(values).flatten()
+    tril_indices = np.tril_indices(len(values), k=-1)
+    tril = values[tril_indices]
 
     counts = np.bincount(tril)
 
@@ -61,7 +64,9 @@ def _compute_history_score(matchings_history, penalty_func=None):
     return score
 
 
-def _compute_assortativity_score(matching, matching_params):
+def _compute_assortativity_score(
+    matching: List[pd.DataFrame], faculty_multiplier: float
+) -> float:
     """Compute assortativity score.
 
     Scores the matching by the fact whether the members of each group want an
@@ -69,33 +74,32 @@ def _compute_assortativity_score(matching, matching_params):
 
     Args:
         matching (list): Matching.
-        matching_params (dict): Dictionary containig matching parameters.
+        faculty_multiplier (float): Multiplier determining how much faculty members
+            want to stay in the same group.
 
     Returns:
-        score (float): The corresponding score.
+        float: The corresponding score.
 
     """
-    score = 0
-    for _group in matching:
-        group = _group.copy()
-        wants_assortative = 1 - group.wants_mixing
-        wants_assortative.loc[group.status == "faculty"] *= matching_params[
-            "faculty_multiplier"
-        ]
-
+    score = 0.0
+    for group in matching:
         if len(group.status.unique()) > 1:
+            wants_assortative = 1 - group.wants_mixing
+            wants_assortative.loc[group.status == "faculty"] *= faculty_multiplier
             score += wants_assortative.mean()
 
     return score
 
 
-def update_matchings_history(matchings_history, matching):
-    """Update grouping matrix using new grouping candidate.
+def update_matchings_history(
+    matchings_history: pd.DataFrame, matching: List[pd.DataFrame]
+) -> pd.DataFrame:
+    """Update grouping matrix using matching.
 
     Args:
         matchings_history (pd.DataFrame): Square df containing group information. Index
             and column is given by the 'id' column in src/data/names.csv.
-        matching (list): Matching.
+        matching (List[pd.DataFrame]): Matching.
 
     Returns:
         updated_history (pd.DataFrame): Updated grouping matrix where group
@@ -112,57 +116,51 @@ def update_matchings_history(matchings_history, matching):
     return updated_history
 
 
-def draw_candidate_matchings(participants, min_size, n_candidates, seed=0):
+def draw_candidate_matchings(
+    participants: pd.DataFrame, min_size: int, n_draws: int, rng: np.random.Generator
+) -> List[List[pd.DataFrame]]:
     """Create multiple random groupings in list-format.
 
     Args:
-        participants (pd.DataFrame): d:f with columns 'id'(int), 'names'(str),
-            'joins'(0/1), 'status'(student/faculty) and 'wants_mixing'(0/1)'. But only
-            rows with joins equal to 1 are selected.
+        participants (pd.DataFrame): Subsetted names data frame.
         min_size (int): Minimum group size.
-        n_candidates (int): Number of candidate groups to simulate.
-        seed (int): Initial seed to pass to the seed generator.
+        n_draws (int): Number of draws.
+        rng (np.random.Generator): Random number generator.
 
     Returns:
-        candidates (list): List of candidate groupings.
+        List[List[pd.DataFrame]]: List of candidate matching.
 
     """
-    seed_counter = count(seed)
-
-    candidates = []
-    for _ in range(n_candidates):
-        matching = _create_candidate_matching(
-            participants, min_size, next(seed_counter)
-        )
-        candidates.append(matching)
-
+    candidates = [
+        _create_candidate_matching(participants, min_size, rng=rng)
+        for _ in range(n_draws)
+    ]
     return candidates
 
 
-def _create_candidate_matching(participants, min_size, seed):
+def _create_candidate_matching(
+    participants: pd.DataFrame, min_size: int, rng: np.random.Generator
+) -> List[pd.DataFrame]:
     """Create single matching candidate.
 
     Args:
-        participants (pd.DataFrame): d:f with columns 'id'(int), 'names'(str),
-            'joins'(0/1), 'status'(student/faculty) and 'wants_mixing'(0/1)'. But only
-            rows with joins equal to 1 are selected.
+        participants (pd.DataFrame): Subsetted names data frame.
         min_size (int): Minimum group size.
         n_candidates (int): Number of candidate groups to simulate.
-        initial_seed (int): Initial seed to pass to the seed generator.
+        rng (np.random.Generator): Random number generator.
 
     Returns:
-        candidate (list): Matching candidate.
+        List[pd.DataFrame]: Matching candidate.
 
     """
-    np.random.seed(seed)
     ids = participants.index.values.copy()
-    np.random.shuffle(ids)
+    rng.shuffle(ids)
     id_chunks = _create_chunks(ids, min_size)
-    candidate = [participants.loc[chunk].copy() for chunk in id_chunks]
-    return candidate
+    matching = [participants.loc[chunk].copy() for chunk in id_chunks]
+    return matching
 
 
-def _create_chunks(ids, min_size):
+def _create_chunks(ids: np.ndarray, min_size: int) -> List[List[int]]:
     """Create chunks of subgroups of list of ids.
 
     Args:
@@ -170,12 +168,7 @@ def _create_chunks(ids, min_size):
         min_size (int): Minimum group size.
 
     Returns:
-        chunks (list-like): Grouping candidate.
-
-    Example:
-    >>> ids = np.arange(10)
-    >>> _create_chunks(ids, min_size=3)
-    [[0, 1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        List[List[int]]: Splitted ids.
 
     """
     n_chunks = len(ids) // min_size
