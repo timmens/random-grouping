@@ -1,6 +1,6 @@
-id,name,joins,status,wants_mixing
-0,Antonia,1,student,1
-1,Daniel,1,student,1
-2,Fabio,1,faculty,1
-3,Lukas,1,faculty,1
-4,Luis,0,student,0
+id,name,joins
+0,Antonia,1
+1,Daniel,1
+2,Fabio,1
+3,Lukas,1
+4,Luis,0

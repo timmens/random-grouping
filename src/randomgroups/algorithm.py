@@ -10,6 +10,7 @@ def find_optimal_matching(
     matchings_history: pd.DataFrame,
     penalty_func: callable,
     faculty_multiplier: float,
+    assortative_matching: bool,
 ) -> List[pd.DataFrame]:
     """Find best matching from list of candidates.
 
@@ -21,6 +22,7 @@ def find_optimal_matching(
             punish large values in matchings_history.
         faculty_multiplier (float): Multiplier determining how much faculty members
             want to stay in the same group.
+        assortative_matching (bool): Whether to use assortative matching.
 
     Returns:
         List[pd.DataFrame]: Matching that minimizes the criterion.
@@ -29,9 +31,10 @@ def find_optimal_matching(
     criterion_values = []
     for matching in candidates:
         updated_history = update_matchings_history(matchings_history, matching)
-        history_score = _compute_history_score(updated_history, penalty_func)
-        assortativity_score = _compute_assortativity_score(matching, faculty_multiplier)
-        criterion_values.append(history_score + assortativity_score)
+        score = _compute_history_score(updated_history, penalty_func)
+        if assortative_matching:
+            score += _compute_assortativity_score(matching, faculty_multiplier)
+        criterion_values.append(score)
 
     optimal_matching = candidates[np.argmin(criterion_values)]
     return optimal_matching

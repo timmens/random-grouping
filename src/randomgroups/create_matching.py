@@ -20,6 +20,7 @@ def create_matching(
     min_size: int = 3,
     penalty_func: callable = np.exp,
     faculty_multiplier: float = 3.0,
+    assortative_matching: bool = False,
     n_draws: int = 1_000,
     seed: int = 12345,
     return_results: bool = False,
@@ -36,6 +37,7 @@ def create_matching(
             punish large values in matchings_history.
         faculty_multiplier (float): Multiplier determining how much faculty members
             want to stay in the same group.
+        assortative_matching (bool): Whether to use assortative matching.
         n_candidates (int): Number of candidate groups to try during loss minimization.
         seed (int): Seed from which to start the seed generator.
         return_results (bool): Indicates whether the results should be returned.
@@ -83,6 +85,12 @@ def create_matching(
     if len(participants) < min_size:
         raise ValueError("There are less participants than 'min_size'.")
 
+    if "status" not in names.columns and assortative_matching:
+        raise ValueError(
+            "Assortative matching is requested but 'status' column is not present in "
+            "names table."
+        )
+
     matchings_history = read_or_create_matchings_history(
         names=names,
         path=matchings_history_path,
@@ -107,6 +115,7 @@ def create_matching(
         matchings_history=matchings_history,
         penalty_func=penalty_func,
         faculty_multiplier=faculty_multiplier,
+        assortative_matching=assortative_matching,
     )
 
     # ==================================================================================

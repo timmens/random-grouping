@@ -5,36 +5,29 @@
 [![image](https://codecov.io/gh/timmens/random-grouping/branch/main/graph/badge.svg)](https://codecov.io/gh/timmens/random-grouping)
 [![image](https://results.pre-commit.ci/badge/github/timmens/random-grouping/main.svg)](https://github.com/timmens/randomg-grouping/actions?query=branch%3Amain)
 
-# Use Case
+# Introduction
 
-This package exports a single function called `create_matching` which can be used to to
-create matchings for different meetings from a varying but overlapping set of members.
-In particular the internal algorithm makes sure that group matchings in different
-meetings are mixed.
+This package exports a single function called `create_matching` which can be used to
+create matchings for reccuring meetings from a varying but overlapping set of members.
+In particular, the internal algorithm makes sure that matchings at different meetings
+are mixed.
 
 # Installation
 
-The package can be installed via conda. To do so, type the following commands in your
+The package can be installed via pip. To do so, type the following commands in your
 favorite terminal emulator:
 
-```bash
-$ conda config --add channels conda-forge
-$ conda install -c timmens randomgroups
+```console
+$ pip install randomgroups
 ```
 
-If you prefer to use pip you can install the latest version directly from GitHub.
+# Usage
 
-```bash
-$ pip install --upgrade git+git://github.com/timmens/random-grouping.git
-```
-
-# How to Use
-
-The code expects a csv file containing *id*, *name*, and *joins* columns, where *id* is
+The code expects a data file containing *id*, *name*, and *joins* columns, where *id* is
 used internally to keep track of matchings, *name* is a str column which is used when
 creating the human-readable output and *joins* is a {0, 1} column which denotes if the
 given individual wants to join the current meeting. An example file is given here
-[names.csv](https://github.com/timmens/random-grouping/blob/main/example_data/names.csv).
+[names.csv](https://github.com/timmens/random-grouping/blob/main/tests/data/names.csv).
 Note that the rows in *id* column have to be unique. If new individuals wish to be added
 these individuals simply need to be appended to the data file, the code will update all
 further files automatically.
@@ -44,7 +37,7 @@ further files automatically.
 If no prior matchings have been recorded you can create a new set of groups by running
 the following lines in a Python shell
 
-```Python3
+```python
 from randomgroups import create_matching
 
 names_path = "/path/to/names.csv"
@@ -53,7 +46,7 @@ output_path = "/path/to/folder/where/to/store/output/data"
 create_matching(
     names_path=names_path,
     output_path=output_path,
-    min_size=3,
+    min_size=2,
 )
 ```
 
@@ -62,8 +55,8 @@ folder `output_path` two files will be created. One, `matchings.txt` which conta
 named matchings for the current meeting, and second, `matchings_history.csv` which
 contains information on matchings. The latter file needs to be saved since it will be
 used in subsequent function calls. Example files are given here:
-[matching.txt](https://github.com/timmens/random-grouping/blob/main/example_data/matching.txt),
-[matchings_history.csv](https://github.com/timmens/random-grouping/blob/main/example_data/matchings_history.csv).
+[matching.txt](https://github.com/timmens/random-grouping/blob/main/tests/data/matching.txt),
+[matchings_history.csv](https://github.com/timmens/random-grouping/blob/main/tests/data/matchings_history.csv).
 
 *Remark:* If the files `names.csv` is a Google sheet which is updated on a regular basis
 it can be sensible not to donwload the file but to provide a link to the sheet directly.
