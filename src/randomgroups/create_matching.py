@@ -35,9 +35,11 @@ def create_matching(
         matchings_history_path (str or pathlib.Path): Path to matchings history file.
         output_path (str or pathlib.Path): Output path. If None output is not written.
         min_size (int): Minimum group size.
-        n_groups (int or None): Number of groups to create. If None, min_size is used to determine the number of groups.
-        max_size (int or None): Setting a maximal group size can lead to participants being excluded (the participants
-            with the most matchings in history file). If None, no maximum size is enforced.
+        n_groups (int or None): Number of groups to create.
+            If None, min_size is used to determine the number of groups.
+        max_size (int or None): Setting a maximal group size can lead to participants
+            being excluded (the participants with the most matchings in history file).
+            If None, no maximum size is enforced.
         penalty_func (callable): Penalty function, defaults to np.exp. Is applied to
             punish large values in matchings_history.
         faculty_multiplier (float): Multiplier determining how much faculty members
@@ -128,6 +130,7 @@ def create_matching(
             min_size = group_min_size
 
     # we check if max_size is set
+    excluded_participants = []
     if max_size is not None:
         n_to_exclude = 0
         if n_groups is not None:
@@ -137,7 +140,8 @@ def create_matching(
             if n_to_exclude > 0:
                 min_size = (len(participants) - n_to_exclude) // n_groups
         elif max_size == min_size:
-            # check if we need to exclude participants in order to have groups size = max_size
+            # check if we need to exclude participants
+            # in order to have groups size = max_size
             n_to_exclude = len(participants) % max_size
         else:
             # if n_groups is not set:
@@ -146,7 +150,8 @@ def create_matching(
             pass
 
         if n_to_exclude > 0:
-            # we exclude those people with most matchings (and first to appear in the name list)
+            # we exclude those people with most matchings
+            # (and first to appear in the name list)
             # this is not optimal with regard to mixing people
             n_matches = (
                 matchings_history.loc[participants.index]
@@ -154,10 +159,11 @@ def create_matching(
                 .sort_values(ascending=False)
             )
             included_ids = n_matches[n_to_exclude:].index
-            print(
-                "Excluded participants:",
-                participants.loc[n_matches[:n_to_exclude].index, "name"].to_list(),
-            )
+            # save names of excluded participants
+            excluded_participants = participants.loc[
+                n_matches[:n_to_exclude].index, "name"
+            ].to_list()
+            # update participants
             participants = participants.loc[included_ids]
 
     # ==================================================================================
@@ -185,6 +191,11 @@ def create_matching(
     updated_history = update_matchings_history(matchings_history, optimal_matching)
 
     matching_str_repr = format_matching_as_str(optimal_matching)
+
+    if len(excluded_participants) > 0:
+        matching_str_repr += (
+            f'\nExcluded participants: {", ".join(excluded_participants)}'
+        )
 
     if output_path is not None:
         write_matchings_history(
