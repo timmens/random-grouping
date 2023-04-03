@@ -146,7 +146,8 @@ def _ask_for_new_file_name(existing_file: Path, default: str) -> str:
 
     """
     new_file_name = click.prompt(
-        f"File {existing_file} exists. Please enter other name or nothing to overwrite.",
+        f"File {existing_file} exists. Please "
+        f"enter other name or nothing to overwrite.",
         type=str,
         default=default,
     )
