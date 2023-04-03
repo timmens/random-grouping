@@ -135,7 +135,7 @@ def create_matching(
             # already checked that min_size < max_size
             n_to_exclude = len(participants) - n_groups * max_size
             if n_to_exclude > 0:
-                min_size = (len(participants)-n_to_exclude) // n_groups
+                min_size = (len(participants) - n_to_exclude) // n_groups
         elif max_size == min_size:
             # check if we need to exclude participants in order to have groups size = max_size
             n_to_exclude = len(participants) % max_size
@@ -148,9 +148,16 @@ def create_matching(
         if n_to_exclude > 0:
             # we exclude those people with most matchings (and first to appear in the name list)
             # this is not optimal with regard to mixing people
-            n_matches = matchings_history.loc[participants.index].sum(axis=1).sort_values(ascending=False)
+            n_matches = (
+                matchings_history.loc[participants.index]
+                .sum(axis=1)
+                .sort_values(ascending=False)
+            )
             included_ids = n_matches[n_to_exclude:].index
-            print('Excluded participants:', participants.loc[n_matches[:n_to_exclude].index, 'name'].to_list())
+            print(
+                "Excluded participants:",
+                participants.loc[n_matches[:n_to_exclude].index, "name"].to_list(),
+            )
             participants = participants.loc[included_ids]
 
     # ==================================================================================
