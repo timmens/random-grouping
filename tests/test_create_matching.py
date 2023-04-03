@@ -3,6 +3,7 @@ import pandas as pd
 from pandas.testing import assert_frame_equal
 from pathlib import Path
 import numpy as np
+import pytest
 
 
 TEST_DATA = Path(__file__).parent / "data"
@@ -45,5 +46,60 @@ def test_create_matching_test_concave_penalty():
         {"Antonia", "Daniel"},
         {"Lukas", "Fabio"},
     ]
+    for group in result["matching"]:
+        assert set(group.name) in expected_groups
+
+
+def test_n_groups():
+    result = create_matching(
+        names_path=TEST_DATA.joinpath("names.csv"),
+        matchings_history_path=TEST_DATA.joinpath("matchings_history.csv"),
+        min_size=2,
+        n_groups=1,
+        n_draws=10,
+        return_results=True,
+    )
+    expected_groups = [{"Antonia", "Daniel", "Fabio", "Lukas"}]
+    for group in result["matching"]:
+        assert set(group.name) in expected_groups
+
+    result = create_matching(
+        names_path=TEST_DATA.joinpath("names.csv"),
+        matchings_history_path=TEST_DATA.joinpath("matchings_history.csv"),
+        min_size=2,
+        n_groups=2,
+        n_draws=10,
+        return_results=True,
+    )
+    expected_groups = [
+        {"Antonia", "Lukas"},
+        {"Daniel", "Fabio"},
+    ]
+    for group in result["matching"]:
+        assert set(group.name) in expected_groups
+
+    with pytest.raises(Exception):
+        create_matching(
+            names_path=TEST_DATA.joinpath("names.csv"),
+            matchings_history_path=TEST_DATA.joinpath("matchings_history.csv"),
+            min_size=2,
+            n_groups=3,
+            n_draws=10,
+            return_results=False,
+        )
+
+
+def test_max_size():
+    result = create_matching(
+        names_path=TEST_DATA.joinpath("names.csv"),
+        matchings_history_path=TEST_DATA.joinpath("matchings_history.csv"),
+        min_size=2,
+        n_groups=1,
+        max_size=2,
+        n_draws=10,
+        return_results=True,
+    )
+    # Antonia and Daniel should be excluded (most matches)
+    expected_groups = [{"Fabio", "Lukas"}]
     for group in result["matching"]:
         assert set(group.name) in expected_groups
