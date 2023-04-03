@@ -103,3 +103,19 @@ def test_max_size():
     expected_groups = [{"Fabio", "Lukas"}]
     for group in result["matching"]:
         assert set(group.name) in expected_groups
+
+    result = create_matching(
+        names_path=TEST_DATA.joinpath("names.csv"),
+        matchings_history_path=TEST_DATA.joinpath("matchings_history.csv"),
+        min_size=2,
+        max_size=2,
+        n_draws=10,
+        return_results=True,
+    )
+    # no one should be excluded since enough people are available
+    expected_groups = [
+        {"Antonia", "Lukas"},
+        {"Daniel", "Fabio"},
+    ]
+    for group in result["matching"]:
+        assert set(group.name) in expected_groups
