@@ -15,7 +15,7 @@ def read_names(path: Path) -> pd.DataFrame:
     """Read names file.
 
     Reads names file if stored locally and downloads it if url is given instead. This
-    exepects that the file is directly downloadable from the url. For example, if you
+    expects that the file is directly downloadable from the url. For example, if you
     want to download a google sheet you have to publish the document in the file
     settings of the google to get a "direct-download" link.
 
@@ -70,7 +70,7 @@ def read_or_create_matchings_history(
     Returns:
         pd.DataFrame: data frame with columns and rows equal to the 'id' column in names
         Cell entries represent the number of meetings of the row individual with the
-        column indidivual.
+        column individual.
 
     """
     if path is None:
@@ -93,8 +93,8 @@ def write_matchings_history(
     """Write matchings history to file.
 
     Args:
-        updated_history (pd.DataFrame): Updated matchings history.
-        output_path (pathlib.Path): Output path.
+        history (pd.DataFrame): Updated matchings history.
+        path (pathlib.Path): Output path.
         overwrite (bool): If True, overwrite existing files, otherwise ask for new name.
 
     """
