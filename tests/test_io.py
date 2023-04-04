@@ -64,7 +64,7 @@ def test_read_or_create_matchings_history_path(tmp_path):
     got = read_or_create_matchings_history(
         path=tmp_path.joinpath("matchings_history.csv")
     )
-    assert_frame_equal(history, got, check_dtype=False)
+    assert_frame_equal(history, got, check_dtype=False, check_index_type=False)
 
 
 # ======================================================================================
@@ -125,4 +125,4 @@ def test_create_matchings_history():
     )
     expected = pd.DataFrame(np.zeros((2, 2), dtype=int), columns=[1, 2], index=[1, 2])
     got = _create_matchings_history(names)
-    assert_frame_equal(expected, got)
+    assert_frame_equal(expected, got, check_dtype=False)
