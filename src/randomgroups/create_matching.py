@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Union
+from typing import Union, Optional
 
 from randomgroups.algorithm import draw_candidate_matchings
 from randomgroups.algorithm import find_optimal_matching
@@ -17,7 +17,9 @@ def create_matching(
     names_path: Union[str, Path] = None,
     matchings_history_path: Union[str, Path] = None,
     output_path: Union[str, Path] = None,
-    min_size: int = 3,
+    min_size: int = 2,
+    n_groups: Optional[int] = None,
+    max_size: Optional[int] = None,
     penalty_func: callable = np.exp,
     faculty_multiplier: float = 3.0,
     assortative_matching: bool = False,
@@ -33,12 +35,17 @@ def create_matching(
         matchings_history_path (str or pathlib.Path): Path to matchings history file.
         output_path (str or pathlib.Path): Output path. If None output is not written.
         min_size (int): Minimum group size.
+        n_groups (int or None): Number of groups to create.
+            If None, min_size is used to determine the number of groups.
+        max_size (int or None): Setting a maximal group size can lead to participants
+            being excluded (the participants with the most matchings in history file).
+            If None, no maximum size is enforced.
         penalty_func (callable): Penalty function, defaults to np.exp. Is applied to
             punish large values in matchings_history.
         faculty_multiplier (float): Multiplier determining how much faculty members
             want to stay in the same group.
         assortative_matching (bool): Whether to use assortative matching.
-        n_candidates (int): Number of candidate groups to try during loss minimization.
+        n_draws (int): Number of candidate groups to try during loss minimization.
         seed (int): Seed from which to start the seed generator.
         return_results (bool): Indicates whether the results should be returned.
         overwrite (bool): Whether to overwrite output files.
@@ -71,6 +78,12 @@ def create_matching(
             "array."
         )
 
+    # check if max_size is valid
+    if max_size is not None and min_size > max_size:
+        raise ValueError(
+            f"min_size ({min_size}) must be smaller than max_size ({max_size})."
+        )
+
     # ==================================================================================
     # Read and verify data
     # ==================================================================================
@@ -101,6 +114,59 @@ def create_matching(
     )
 
     # ==================================================================================
+    # Adapt min_size if max_size or n_groups is set
+    # ==================================================================================
+
+    # if n_groups is set, we set min_size accordingly to get n_groups
+    if n_groups is not None:
+        group_min_size = len(participants) // n_groups
+        if min_size > group_min_size:
+            raise ValueError(
+                f"There are not enough participants ({len(participants)}) to create "
+                f"{n_groups} groups with at least {min_size} members. "
+                "Please decrease n_groups or decrease min_size."
+            )
+        else:
+            min_size = group_min_size
+
+    # we check if max_size is set
+    excluded_participants = []
+    if max_size is not None:
+        n_to_exclude = 0
+        if n_groups is not None:
+            # n_groups is set, need to adjust min_size accordingly
+            # already checked that min_size < max_size
+            n_to_exclude = len(participants) - n_groups * max_size
+            if n_to_exclude > 0:
+                min_size = (len(participants) - n_to_exclude) // n_groups
+        elif max_size == min_size:
+            # check if we need to exclude participants
+            # in order to have groups size = max_size
+            n_to_exclude = len(participants) % max_size
+        else:
+            # if n_groups is not set:
+            # groups produced by the algorithm will be maximal of size min_size+1
+            # only if max_size == min_size we need to do something
+            pass
+
+        if n_to_exclude > 0:
+            # we exclude those people with most matchings
+            # (and first to appear in the name list)
+            # this is not optimal with regard to mixing people
+            n_matches = (
+                matchings_history.loc[participants.index]
+                .sum(axis=1)
+                .sort_values(ascending=False)
+            )
+            included_ids = n_matches[n_to_exclude:].index
+            # save names of excluded participants
+            excluded_participants = participants.loc[
+                n_matches[:n_to_exclude].index, "name"
+            ].to_list()
+            # update participants
+            participants = participants.loc[included_ids]
+
+    # ==================================================================================
     # Algorithm: Optimization using random sampling
     # ==================================================================================
 
@@ -125,6 +191,11 @@ def create_matching(
     updated_history = update_matchings_history(matchings_history, optimal_matching)
 
     matching_str_repr = format_matching_as_str(optimal_matching)
+
+    if len(excluded_participants) > 0:
+        matching_str_repr += (
+            f'\nExcluded participants: {", ".join(excluded_participants)}'
+        )
 
     if output_path is not None:
         write_matchings_history(

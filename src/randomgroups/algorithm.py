@@ -149,7 +149,6 @@ def _create_candidate_matching(
     Args:
         participants (pd.DataFrame): Subsetted names data frame.
         min_size (int): Minimum group size.
-        n_candidates (int): Number of candidate groups to simulate.
         rng (np.random.Generator): Random number generator.
 
     Returns:
@@ -167,7 +166,7 @@ def _create_chunks(ids: np.ndarray, min_size: int) -> List[List[int]]:
     """Create chunks of subgroups of list of ids.
 
     Args:
-        ids (np.ndarray): Integer array with indeces over which we group.
+        ids (np.ndarray): Integer array with indices over which we group.
         min_size (int): Minimum group size.
 
     Returns:
