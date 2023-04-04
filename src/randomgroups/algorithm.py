@@ -1,5 +1,5 @@
 from itertools import combinations
-from typing import List
+from typing import List, Union
 
 import numpy as np
 import pandas as pd
@@ -177,3 +177,70 @@ def _create_chunks(ids: np.ndarray, min_size: int) -> List[List[int]]:
     chunks = np.array_split(ids, n_chunks)
     chunks = [chunk.tolist() for chunk in chunks]
     return chunks
+
+
+def consolidate_min_size_and_n_groups(
+    min_size: int,
+    n_groups: int,
+    n_participants: int,
+) -> int:
+    """Consolidate min_size and n_groups options.
+
+    Args:
+        min_size (int): Minimum group size.
+        n_groups (int): Number of groups.
+        n_participants (int): Number of participants.
+
+    Returns:
+        int: Consolidated minimum group size.
+
+    """
+    consolidated_min_size = n_participants // n_groups
+
+    if min_size > consolidated_min_size:
+        raise ValueError(
+            f"There are not enough participants ({n_participants}) to create "
+            f"{n_groups} groups with at least {min_size} members. Please decrease"
+            "n_groups or decrease min_size."
+        )
+
+    return consolidated_min_size
+
+
+def get_number_of_excluded_participants(
+    consolidated_min_size: int,
+    max_size: int,
+    n_groups: Union[int, None],
+    n_participants: int,
+) -> int:
+    """Determine number of excluded participants using min_size, max_size and n_groups.
+
+    Args:
+        consolidated_min_size (int): Consolidated minimum group size.
+        max_size (int or None): Maximum group size.
+        n_groups (int or None): Number of groups.
+        n_participants (int): Number of participants.
+
+    Returns:
+        int: Number of participants to exclude.
+        bool: Whether min_size needs to be consolidated again with n_groups.
+
+    """
+    n_to_exclude = 0
+    requires_consolidation = False
+
+    if n_groups is not None:
+        # n_groups is set, need to adjust min_size accordingly
+        # already checked that min_size < max_size
+
+        n_to_exclude = max(0, n_participants - n_groups * max_size)
+
+        if n_to_exclude > 0:
+            requires_consolidation = True
+
+    elif max_size == consolidated_min_size:
+        # check if we need to exclude participants
+        # in order to have groups size = max_size
+        n_to_exclude = n_participants % max_size
+
+    return n_to_exclude, requires_consolidation

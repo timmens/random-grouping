@@ -6,6 +6,8 @@ from typing import Union, Optional
 from randomgroups.algorithm import draw_candidate_matchings
 from randomgroups.algorithm import find_optimal_matching
 from randomgroups.algorithm import update_matchings_history
+from randomgroups.algorithm import consolidate_min_size_and_n_groups
+from randomgroups.algorithm import get_number_of_excluded_participants
 from randomgroups.io import format_matching_as_str
 from randomgroups.io import read_names
 from randomgroups.io import read_or_create_matchings_history
@@ -71,14 +73,13 @@ def create_matching(
     matchings_history_path = Path(matchings_history_path)
     output_path = None if output_path is None else Path(output_path)
 
-    test_penalties = penalty_func(np.array([1, 2, 3]))
-    if not isinstance(test_penalties, np.ndarray) or len(test_penalties) != 3:
+    test_penalties = penalty_func(np.array([1, 2]))
+    if not isinstance(test_penalties, np.ndarray) or len(test_penalties) != 2:
         raise ValueError(
             "penalty_func must return a numpy array of the same length as the input "
             "array."
         )
 
-    # check if max_size is valid
     if max_size is not None and min_size > max_size:
         raise ValueError(
             f"min_size ({min_size}) must be smaller than max_size ({max_size})."
@@ -90,12 +91,12 @@ def create_matching(
 
     names = read_names(names_path)
 
-    participants = names.query("joins == 1").set_index("id")
-    participants = participants.convert_dtypes()
+    all_participants = names.query("joins == 1").set_index("id")
+    all_participants = all_participants.convert_dtypes()
 
-    if not participants.index.is_unique:
+    if not all_participants.index.is_unique:
         raise ValueError("id column in names table is not unique.")
-    if len(participants) < min_size:
+    if len(all_participants) < min_size:
         raise ValueError("There are less participants than 'min_size'.")
 
     if "status" not in names.columns and assortative_matching:
@@ -114,57 +115,42 @@ def create_matching(
     )
 
     # ==================================================================================
-    # Adapt min_size if max_size or n_groups is set
+    # Consolidate group size options
     # ==================================================================================
 
-    # if n_groups is set, we set min_size accordingly to get n_groups
     if n_groups is not None:
-        group_min_size = len(participants) // n_groups
-        if min_size > group_min_size:
-            raise ValueError(
-                f"There are not enough participants ({len(participants)}) to create "
-                f"{n_groups} groups with at least {min_size} members. "
-                "Please decrease n_groups or decrease min_size."
-            )
-        else:
-            min_size = group_min_size
+        consolidated_min_size = consolidate_min_size_and_n_groups(
+            min_size=min_size,
+            n_groups=n_groups,
+            n_participants=len(all_participants),
+        )
+    else:
+        consolidated_min_size = min_size
 
-    # we check if max_size is set
-    excluded_participants = []
     if max_size is not None:
-        n_to_exclude = 0
-        if n_groups is not None:
-            # n_groups is set, need to adjust min_size accordingly
-            # already checked that min_size < max_size
-            n_to_exclude = len(participants) - n_groups * max_size
-            if n_to_exclude > 0:
-                min_size = (len(participants) - n_to_exclude) // n_groups
-        elif max_size == min_size:
-            # check if we need to exclude participants
-            # in order to have groups size = max_size
-            n_to_exclude = len(participants) % max_size
-        else:
-            # if n_groups is not set:
-            # groups produced by the algorithm will be maximal of size min_size+1
-            # only if max_size == min_size we need to do something
-            pass
+        n_to_exclude, requires_consolidation = get_number_of_excluded_participants(
+            consolidated_min_size=consolidated_min_size,
+            max_size=max_size,
+            n_groups=n_groups,
+            n_participants=len(all_participants),
+        )
 
-        if n_to_exclude > 0:
-            # we exclude those people with most matchings
-            # (and first to appear in the name list)
-            # this is not optimal with regard to mixing people
-            n_matches = (
-                matchings_history.loc[participants.index]
-                .sum(axis=1)
-                .sort_values(ascending=False)
+        if requires_consolidation:
+            consolidated_min_size = consolidate_min_size_and_n_groups(
+                min_size=min_size,
+                n_groups=n_groups,
+                n_participants=len(all_participants) - n_to_exclude,
             )
-            included_ids = n_matches[n_to_exclude:].index
-            # save names of excluded participants
-            excluded_participants = participants.loc[
-                n_matches[:n_to_exclude].index, "name"
-            ].to_list()
-            # update participants
-            participants = participants.loc[included_ids]
+    else:
+        n_to_exclude = 0
+
+    participants = _exclude_participants_with_most_matchings(
+        all_participants,
+        matchings_history=matchings_history,
+        n_to_exclude=n_to_exclude,
+    )
+
+    excluded_participants = set(all_participants.name) - set(participants.name)
 
     # ==================================================================================
     # Algorithm: Optimization using random sampling
@@ -173,7 +159,10 @@ def create_matching(
     rng = np.random.default_rng(seed)
 
     list_of_matchings = draw_candidate_matchings(
-        participants=participants, min_size=min_size, n_draws=n_draws, rng=rng
+        participants=participants,
+        min_size=consolidated_min_size,
+        n_draws=n_draws,
+        rng=rng,
     )
 
     optimal_matching = find_optimal_matching(
@@ -190,12 +179,10 @@ def create_matching(
 
     updated_history = update_matchings_history(matchings_history, optimal_matching)
 
-    matching_str_repr = format_matching_as_str(optimal_matching)
-
-    if len(excluded_participants) > 0:
-        matching_str_repr += (
-            f'\nExcluded participants: {", ".join(excluded_participants)}'
-        )
+    matching_str_repr = format_matching_as_str(
+        matching=optimal_matching,
+        excluded_participants=excluded_participants,
+    )
 
     if output_path is not None:
         write_matchings_history(
@@ -244,3 +231,28 @@ def _add_new_individuals(matchings_history, names):
         )
 
     return updated
+
+
+def _exclude_participants_with_most_matchings(
+    participants: pd.DataFrame, matchings_history: pd.DataFrame, n_to_exclude: int
+) -> pd.DataFrame:
+    """Subset participants to match group size and number of groups.
+
+    Args:
+        participants (pd.DataFrame): DataFrame containing participant information.
+        matchings_history (pd.DataFrame): Square df containing group information. Index
+            and column is given by the 'id' column in src/data/names.csv.
+        n_to_exclude (int): Number of participants to exclude.
+
+    Returns:
+        pd.DataFrame: Updated participants DataFrame.
+
+    """
+    if n_to_exclude > 0:
+        all_matches = matchings_history.sum(axis=0)
+        matches = all_matches.loc[participants.index]
+        # exclude participants with most matchings
+        to_include = matches.sort_values(ascending=False).index[n_to_exclude:]
+        participants = participants.loc[to_include]
+
+    return participants
