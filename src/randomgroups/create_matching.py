@@ -6,7 +6,7 @@ from typing import Union, Optional
 from randomgroups.algorithm import draw_candidate_matchings
 from randomgroups.algorithm import find_optimal_matching
 from randomgroups.algorithm import update_matchings_history
-from randomgroups.algorithm import consolidate_min_size_and_n_groups
+from randomgroups.algorithm import update_min_size_using_n_groups
 from randomgroups.algorithm import get_number_of_excluded_participants
 from randomgroups.io import format_matching_as_str
 from randomgroups.io import read_names
@@ -119,30 +119,34 @@ def create_matching(
     # ==================================================================================
 
     if n_groups is not None:
-        consolidated_min_size = consolidate_min_size_and_n_groups(
+        updated_min_size = update_min_size_using_n_groups(
             min_size=min_size,
             n_groups=n_groups,
             n_participants=len(all_participants),
         )
     else:
-        consolidated_min_size = min_size
+        updated_min_size = min_size
 
     if max_size is not None:
         n_to_exclude, requires_consolidation = get_number_of_excluded_participants(
-            consolidated_min_size=consolidated_min_size,
+            min_size=updated_min_size,
             max_size=max_size,
             n_groups=n_groups,
             n_participants=len(all_participants),
         )
 
         if requires_consolidation:
-            consolidated_min_size = consolidate_min_size_and_n_groups(
+            updated_min_size = update_min_size_using_n_groups(
                 min_size=min_size,
                 n_groups=n_groups,
                 n_participants=len(all_participants) - n_to_exclude,
             )
     else:
         n_to_exclude = 0
+
+    # ==================================================================================
+    # Exclude participants if neccessary
+    # ==================================================================================
 
     participants = _exclude_participants_with_most_matchings(
         all_participants,
@@ -160,7 +164,7 @@ def create_matching(
 
     list_of_matchings = draw_candidate_matchings(
         participants=participants,
-        min_size=consolidated_min_size,
+        min_size=updated_min_size,
         n_draws=n_draws,
         rng=rng,
     )

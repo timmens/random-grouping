@@ -5,7 +5,7 @@ from randomgroups.algorithm import (
     _create_candidate_matching,
     _compute_history_score,
     update_matchings_history,
-    consolidate_min_size_and_n_groups,
+    update_min_size_using_n_groups,
     get_number_of_excluded_participants,
 )
 import pandas as pd
@@ -84,18 +84,18 @@ def test_update_matchings_history():
 
 
 def test_consolidate_min_size_and_n_groups():
-    got = consolidate_min_size_and_n_groups(min_size=2, n_groups=2, n_participants=5)
+    got = update_min_size_using_n_groups(min_size=2, n_groups=2, n_participants=5)
     assert got == 2
 
 
 def test_consolidate_min_size_and_n_groups_invalid():
     with pytest.raises(ValueError, match="There are not enough participants"):
-        consolidate_min_size_and_n_groups(min_size=3, n_groups=2, n_participants=4)
+        update_min_size_using_n_groups(min_size=3, n_groups=2, n_participants=4)
 
 
 def test_get_number_of_excluded_participants_no_exclusion():
     got = get_number_of_excluded_participants(
-        consolidated_min_size=2,
+        min_size=2,
         max_size=3,
         n_groups=2,
         n_participants=5,
@@ -105,7 +105,7 @@ def test_get_number_of_excluded_participants_no_exclusion():
 
 def test_get_number_of_excluded_participants_with_exclusion():
     got = get_number_of_excluded_participants(
-        consolidated_min_size=2,
+        min_size=2,
         max_size=2,
         n_groups=2,
         n_participants=5,
@@ -115,7 +115,7 @@ def test_get_number_of_excluded_participants_with_exclusion():
 
 def test_get_number_of_excluded_participants_equal_max_min():
     got = get_number_of_excluded_participants(
-        consolidated_min_size=2,
+        min_size=2,
         max_size=2,
         n_groups=None,
         n_participants=5,
