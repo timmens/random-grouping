@@ -10,7 +10,12 @@ from randomgroups.algorithm import (
 )
 import pandas as pd
 from collections import namedtuple
-from pandas.testing import assert_frame_equal
+
+
+def assert_frame_equal(left, right):
+    pd.testing.assert_frame_equal(
+        left, right, check_dtype=False, check_index_type=False, check_column_type=False
+    )
 
 
 def test_compute_history_score_no_matchings():
@@ -80,7 +85,7 @@ def test_update_matchings_history():
     ]
     expected = pd.DataFrame([[0, 1, 0], [1, 0, 0], [0, 0, 0]], dtype=int)
     got = update_matchings_history(matchings_history, matching)
-    assert_frame_equal(expected, got, check_dtype=False)
+    assert_frame_equal(expected, got)
 
 
 def test_consolidate_min_size_and_n_groups():

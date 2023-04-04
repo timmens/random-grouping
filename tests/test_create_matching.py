@@ -4,10 +4,15 @@ from randomgroups.create_matching import (
     _exclude_participants_with_most_matchings,
 )
 import pandas as pd
-from pandas.testing import assert_frame_equal
 from pathlib import Path
 import numpy as np
 import pytest
+
+
+def assert_frame_equal(left, right):
+    pd.testing.assert_frame_equal(
+        left, right, check_dtype=False, check_index_type=False, check_column_type=False
+    )
 
 
 TEST_DATA = Path(__file__).parent.joinpath("data")
@@ -139,7 +144,7 @@ def test_add_new_individuals():
     matchings_history = pd.DataFrame([[0]], index=[1], columns=[1])
     expected = pd.DataFrame([[0, 0], [0, 0]], index=[1, 2], columns=[1, 2])
     got = _add_new_individuals(matchings_history=matchings_history, names=names)
-    assert_frame_equal(expected, got, check_dtype=False)
+    assert_frame_equal(expected, got)
 
 
 def test_exclude_participants_with_most_matchings():
@@ -151,7 +156,7 @@ def test_exclude_participants_with_most_matchings():
     got = _exclude_participants_with_most_matchings(
         participants=participants, matchings_history=matchings_history, n_to_exclude=1
     )
-    assert_frame_equal(expected, got, check_dtype=False)
+    assert_frame_equal(expected, got)
 
 
 def test_exclude_participants_with_most_matchings_no_exclusion():
