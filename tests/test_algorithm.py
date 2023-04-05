@@ -1,13 +1,21 @@
 import numpy as np
+import pytest
 from randomgroups.algorithm import (
     _create_chunks,
     _create_candidate_matching,
     _compute_history_score,
     update_matchings_history,
+    update_min_size_using_n_groups,
+    get_number_of_excluded_participants,
 )
 import pandas as pd
 from collections import namedtuple
-from pandas.testing import assert_frame_equal
+
+
+def assert_frame_equal(left, right):
+    pd.testing.assert_frame_equal(
+        left, right, check_dtype=False, check_index_type=False, check_column_type=False
+    )
 
 
 def test_compute_history_score_no_matchings():
@@ -77,4 +85,44 @@ def test_update_matchings_history():
     ]
     expected = pd.DataFrame([[0, 1, 0], [1, 0, 0], [0, 0, 0]], dtype=int)
     got = update_matchings_history(matchings_history, matching)
-    assert_frame_equal(expected, got, check_dtype=False)
+    assert_frame_equal(expected, got)
+
+
+def test_consolidate_min_size_and_n_groups():
+    got = update_min_size_using_n_groups(min_size=2, n_groups=2, n_participants=5)
+    assert got == 2
+
+
+def test_consolidate_min_size_and_n_groups_invalid():
+    with pytest.raises(ValueError, match="There are not enough participants"):
+        update_min_size_using_n_groups(min_size=3, n_groups=2, n_participants=4)
+
+
+def test_get_number_of_excluded_participants_no_exclusion():
+    got = get_number_of_excluded_participants(
+        min_size=2,
+        max_size=3,
+        n_groups=2,
+        n_participants=5,
+    )
+    assert got == (0, False)
+
+
+def test_get_number_of_excluded_participants_with_exclusion():
+    got = get_number_of_excluded_participants(
+        min_size=2,
+        max_size=2,
+        n_groups=2,
+        n_participants=5,
+    )
+    assert got == (1, True)
+
+
+def test_get_number_of_excluded_participants_equal_max_min():
+    got = get_number_of_excluded_participants(
+        min_size=2,
+        max_size=2,
+        n_groups=None,
+        n_participants=5,
+    )
+    assert got == (1, False)

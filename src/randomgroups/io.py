@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import List, Set
 
 import click
 import numpy as np
@@ -172,11 +172,14 @@ def _create_matchings_history(names: pd.DataFrame) -> pd.DataFrame:
     return matchings_history
 
 
-def format_matching_as_str(matching: List[pd.DataFrame]) -> str:
+def format_matching_as_str(
+    matching: List[pd.DataFrame], excluded_participants: Set[str]
+) -> str:
     """Format matching in human readable string.
 
     Args:
         matching (List[pd.DataFrame]): Matching.
+        excluded_participants (set[str]): Set of excluded participants.
 
     Returns:
         str: The formatted text as string.
@@ -186,4 +189,9 @@ def format_matching_as_str(matching: List[pd.DataFrame]) -> str:
     formatted = ""
     for k, text in enumerate(texts):
         formatted += f"Group {k}: {text}\n"
+
+    if len(excluded_participants) > 0:
+        excluded_str = f"Excluded participants: {', '.join(excluded_participants)}"
+        formatted = formatted + "\n" + excluded_str
+
     return formatted
