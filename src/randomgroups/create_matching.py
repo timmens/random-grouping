@@ -16,9 +16,9 @@ from randomgroups.io import write_matchings_history
 
 
 def create_matching(
-    names_path: Union[str, Path] = None,
-    matchings_history_path: Union[str, Path] = None,
-    output_path: Union[str, Path] = None,
+    names_path: Union[str, Path],
+    matchings_history_path: Optional[Union[str, Path]] = None,
+    output_path: Optional[Union[str, Path]] = None,
     min_size: int = 2,
     n_groups: Optional[int] = None,
     max_size: Optional[int] = None,
@@ -70,7 +70,9 @@ def create_matching(
         )
 
     names_path = Path(names_path)
-    matchings_history_path = Path(matchings_history_path)
+    matchings_history_path = (
+        None if matchings_history_path is None else Path(matchings_history_path)
+    )
     output_path = None if output_path is None else Path(output_path)
 
     test_penalties = penalty_func(np.array([1, 2]))
@@ -145,7 +147,7 @@ def create_matching(
         n_to_exclude = 0
 
     # ==================================================================================
-    # Exclude participants if neccessary
+    # Exclude participants if necessary
     # ==================================================================================
 
     participants = _exclude_participants_with_most_matchings(
