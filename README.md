@@ -8,7 +8,7 @@
 # Introduction
 
 This package exports a single function called `create_matching` which can be used to
-create matchings for reccuring meetings from a varying but overlapping set of members.
+create matchings for reoccurring meetings from a varying but overlapping set of members.
 In particular, the internal algorithm makes sure that matchings at different meetings
 are mixed.
 
@@ -59,7 +59,7 @@ used in subsequent function calls. Example files are given here:
 [matchings_history.csv](https://github.com/timmens/random-grouping/blob/main/tests/data/matchings_history.csv).
 
 *Remark:* If the files `names.csv` is a Google sheet which is updated on a regular basis
-it can be sensible not to donwload the file but to provide a link to the sheet directly.
+it can be sensible not to download the file but to provide a link to the sheet directly.
 In the case with Google sheets this is easily done by opening the Google sheet and then
 publishing the document in the file options. This creates a link to a downloadable csv
 file which updates when the Google sheet is updated. This URL can then be passed to
@@ -73,12 +73,13 @@ will then influence new group formations.
 
 **Assortative Matching:**
 
-The 'status' column in the names csv-file allows one to distuingish between 'student'
-and 'faculty'. One can then use the 'wants_mixing' column to specify whether an
-individual wants to be mixed with people from another group. This is not absolute. A
-float parameter ("faculty_multiplier") can be specified in a dictionary an passed to the
-main function via the argument "matching_params". If this parameter is very high it will
-be less likely that faculty that does not want to mix is mixed.
+The 'status' column in the names csv-file allows one to distinguish between different
+stati like 'student' or 'faculty'. One can then use the 'wants_mixing' column to specify
+whether an individual wants to be mixed with people from another group. This is not
+absolute. A float parameter ("mixing_multiplier") can be specified. If this parameter is
+very high it will be less likely that people with a different status and which do not
+want to mix are mixed. In fact, a negative value will make it more likely that people
+with a different status are mixed.
 
 # Contributing
 
