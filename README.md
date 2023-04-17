@@ -74,12 +74,12 @@ will then influence new group formations.
 **Assortative Matching:**
 
 The 'status' column in the names csv-file allows one to distinguish between different
-stati like 'student' or 'faculty'. One can then use the 'wants_mixing' column to specify
-whether an individual wants to be mixed with people from another group. This is not
-absolute. A float parameter ("mixing_multiplier") can be specified. If this parameter is
-very high it will be less likely that people with a different status and which do not
-want to mix are mixed. In fact, a negative value will make it more likely that people
-with a different status are mixed.
+statuses like 'student' or 'faculty'. One can then use the 'wants_mixing' column to
+specify whether an individual wants to be mixed with people from another group. This is
+not absolute. A float parameter ("mixing_multiplier") can be specified. If this
+parameter is very high it will be less likely that people with a different status and
+which do not want to mix are mixed. In fact, a negative value will make it more likely
+that people with a different status are mixed.
 
 # Contributing
 
