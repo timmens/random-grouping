@@ -23,7 +23,7 @@ def create_matching(
     n_groups: Optional[int] = None,
     max_size: Optional[int] = None,
     penalty_func: callable = np.exp,
-    faculty_multiplier: float = 3.0,
+    mixing_multiplier: float = 3.0,
     assortative_matching: bool = False,
     n_draws: int = 1_000,
     seed: int = 12345,
@@ -44,8 +44,10 @@ def create_matching(
             If None, no maximum size is enforced.
         penalty_func (callable): Penalty function, defaults to np.exp. Is applied to
             punish large values in matchings_history.
-        faculty_multiplier (float): Multiplier determining how much faculty members
-            want to stay in the same group.
+         mixing_multiplier (float): Multiplier determining how many members of different
+            status want to stay in the same group. Positive values favor assortative
+            matchings, negative values favor mixed matchings.
+            Can only be used if assortative_matching is True.
         assortative_matching (bool): Whether to use assortative matching.
         n_draws (int): Number of candidate groups to try during loss minimization.
         seed (int): Seed from which to start the seed generator.
@@ -175,7 +177,7 @@ def create_matching(
         candidates=list_of_matchings,
         matchings_history=matchings_history,
         penalty_func=penalty_func,
-        faculty_multiplier=faculty_multiplier,
+        mixing_multiplier=mixing_multiplier,
         assortative_matching=assortative_matching,
     )
 

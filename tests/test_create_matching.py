@@ -134,6 +134,42 @@ def test_create_matching_max_size_no_exclusion():
         assert set(group.name) in expected_groups
 
 
+def test_assortative_matching():
+    result = create_matching(
+        names_path=TEST_DATA.joinpath("names_assortative.csv"),
+        min_size=2,
+        seed=1,
+        mixing_multiplier=1,
+        assortative_matching=True,
+        return_results=True,
+    )
+
+    # groups should be sorted by faculty
+    expected_groups = [
+        {"Daniel", "Antonia"},
+        {"Paul", "Luis", "Fabio"},
+    ]
+    for group in result["matching"]:
+        assert set(group.name) in expected_groups
+
+    result = create_matching(
+        names_path=TEST_DATA.joinpath("names_assortative.csv"),
+        min_size=2,
+        seed=1,
+        mixing_multiplier=-1,
+        assortative_matching=True,
+        return_results=True,
+    )
+
+    # groups should be as mixed as possible
+    expected_groups = [
+        {"Daniel", "Luis", "Paul"},
+        {"Antonia", "Fabio"},
+    ]
+    for group in result["matching"]:
+        assert set(group.name) in expected_groups
+
+
 # ======================================================================================
 # Helper functions
 # ======================================================================================

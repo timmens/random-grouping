@@ -7,6 +7,7 @@ from randomgroups.algorithm import (
     update_matchings_history,
     update_min_size_using_n_groups,
     get_number_of_excluded_participants,
+    _compute_assortativity_score,
 )
 import pandas as pd
 from collections import namedtuple
@@ -126,3 +127,59 @@ def test_get_number_of_excluded_participants_equal_max_min():
         n_participants=5,
     )
     assert got == (1, False)
+
+
+def test_compute_assortativity_score():
+    matching = [
+        pd.DataFrame(
+            {"name": ["Alice", "Bob"], "status": ["faculty1", "faculty1"]}, index=[0, 1]
+        ),
+    ]
+    got = _compute_assortativity_score(matching, mixing_multiplier=3.0)
+    assert got == 0.0
+
+    matching = [
+        pd.DataFrame(
+            {"name": ["Alice", "Bob"], "status": ["faculty1", "faculty2"]}, index=[0, 1]
+        ),
+    ]
+    got = _compute_assortativity_score(matching, mixing_multiplier=3.0)
+    assert got == 6.0
+
+    matching = [
+        pd.DataFrame(
+            {
+                "name": ["Alice", "Bob", "Jack"],
+                "status": ["faculty1", "faculty2", "faculty2"],
+            },
+            index=[0, 1, 3],
+        ),
+    ]
+    got = _compute_assortativity_score(matching, mixing_multiplier=3.0)
+    assert got == 6.0
+
+    matching = [
+        pd.DataFrame(
+            {
+                "name": ["Alice", "Bob", "Jack"],
+                "status": ["faculty1", "faculty2", "faculty2"],
+                "wants_mixing": [1, 1, 1],
+            },
+            index=[0, 1, 3],
+        ),
+    ]
+    got = _compute_assortativity_score(matching, mixing_multiplier=3.0)
+    assert got == 0.0
+
+    matching = [
+        pd.DataFrame(
+            {
+                "name": ["Alice", "Bob", "Jack"],
+                "status": ["faculty1", "faculty2", "faculty2"],
+                "wants_mixing": [0, 0, 1],
+            },
+            index=[0, 1, 3],
+        ),
+    ]
+    got = _compute_assortativity_score(matching, mixing_multiplier=3.0)
+    assert got == 4.0
