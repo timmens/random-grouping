@@ -89,15 +89,18 @@ def _compute_assortativity_score(
     """
     score = 0.0
     for group in matching:
-        unique_status = group.status.unique()
-        n_unique_status = len(unique_status)
-        if n_unique_status > 1:
-            if "wants_mixing" not in group.columns:
-                group["wants_mixing"] = 0
-            wants_assortative = 1 - group.wants_mixing
-            wants_assortative *= mixing_multiplier * n_unique_status
-            score += wants_assortative.mean()
-
+        # check if group has more than one status
+        statuses_columns = [col for col in group.columns if "status" in col]
+        if "wants_mixing" not in group.columns:
+            # if not, assume that no-one wants mixing
+            group["wants_mixing"] = 0
+        for status in statuses_columns:
+            unique_status = group[status].unique()
+            n_unique_status = len(unique_status)
+            if n_unique_status > 1:
+                wants_assortative = 1 - group.wants_mixing
+                wants_assortative *= mixing_multiplier * n_unique_status
+                score += wants_assortative.mean()
     return score
 
 
