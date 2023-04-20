@@ -9,7 +9,7 @@ def find_optimal_matching(
     candidates: List[List[pd.DataFrame]],
     matchings_history: pd.DataFrame,
     penalty_func: callable,
-    mixing_multiplier: float,
+    mixing_multiplier: List[float],
     assortative_matching: bool,
 ) -> List[pd.DataFrame]:
     """Find best matching from list of candidates.
@@ -20,9 +20,9 @@ def find_optimal_matching(
             and column is given by the 'id' column in src/data/names.csv.
         penalty_func (callable): Penalty function, defaults to np.exp. Is applied to
             punish large values in matchings_history.
-        mixing_multiplier (float): Multiplier determining how many members of different
-            status want to stay in the same group. Positive values favor assortative
-            matchings, negative values favor mixed matchings.
+        mixing_multiplier (float, List): Multiplier determining how many members of
+            different status want to stay in the same group. Positive values favor
+            assortative matchings, negative values favor mixed matchings.
             Can only be used if assortative_matching is True.
         assortative_matching (bool): Whether to use assortative matching.
 
@@ -70,7 +70,7 @@ def _compute_history_score(
 
 
 def _compute_assortativity_score(
-    matching: List[pd.DataFrame], mixing_multiplier: float
+    matching: List[pd.DataFrame], mixing_multiplier: List[float]
 ) -> float:
     """Compute assortativity score.
 
@@ -79,25 +79,29 @@ def _compute_assortativity_score(
 
     Args:
         matching (list): Matching.
-         mixing_multiplier (float): Multiplier determining how many members of different
-            status want to stay in the same group. Positive values favor assortative
-            matchings, negative values favor mixed matchings.
+         mixing_multiplier (float, List): Multiplier determining how many members of
+            different status want to stay in the same group. Positive values favor
+            assortative matchings, negative values favor mixed matchings.
 
     Returns:
         float: The corresponding score.
 
     """
+    # check if group has more than one status
+    statuses_columns = [col for col in matching[0].columns if "status" in col]
+
     score = 0.0
     for group in matching:
-        unique_status = group.status.unique()
-        n_unique_status = len(unique_status)
-        if n_unique_status > 1:
-            if "wants_mixing" not in group.columns:
-                group["wants_mixing"] = 0
-            wants_assortative = 1 - group.wants_mixing
-            wants_assortative *= mixing_multiplier * n_unique_status
-            score += wants_assortative.mean()
-
+        if "wants_mixing" not in group.columns:
+            # if not, assume that no-one wants mixing
+            group["wants_mixing"] = 0
+        for s_idx, status in enumerate(statuses_columns):
+            unique_status = group[status].dropna().unique()
+            n_unique_status = len(unique_status)
+            if n_unique_status > 1:
+                wants_assortative = 1 - group.wants_mixing
+                wants_assortative *= mixing_multiplier[s_idx] * n_unique_status
+                score += wants_assortative.mean()
     return score
 
 
