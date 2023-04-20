@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Union, Optional
+from typing import Union, Optional, List
 
 from randomgroups.algorithm import draw_candidate_matchings
 from randomgroups.algorithm import find_optimal_matching
@@ -23,7 +23,7 @@ def create_matching(
     n_groups: Optional[int] = None,
     max_size: Optional[int] = None,
     penalty_func: callable = np.exp,
-    mixing_multiplier: float = 3.0,
+    mixing_multiplier: Union[float, List[float]] = 3.0,
     assortative_matching: bool = False,
     n_draws: int = 1_000,
     seed: int = 12345,
@@ -44,10 +44,11 @@ def create_matching(
             If None, no maximum size is enforced.
         penalty_func (callable): Penalty function, defaults to np.exp. Is applied to
             punish large values in matchings_history.
-         mixing_multiplier (float): Multiplier determining how many members of different
-            status want to stay in the same group. Positive values favor assortative
-            matchings, negative values favor mixed matchings.
-            Can only be used if assortative_matching is True.
+        mixing_multiplier (float, List): Multiplier determining how many members of
+            different status want to stay in the same group. Positive values favor
+            assortative matchings, negative values favor mixed matchings. Can be a
+            list if there are multiple statuses and can only be used if
+            assortative_matching is True.
         assortative_matching (bool): Whether to use assortative matching.
         n_draws (int): Number of candidate groups to try during loss minimization.
         seed (int): Seed from which to start the seed generator.
@@ -103,11 +104,23 @@ def create_matching(
     if len(all_participants) < min_size:
         raise ValueError("There are less participants than 'min_size'.")
 
-    if "status" not in names.columns and assortative_matching:
-        raise ValueError(
-            "Assortative matching is requested but 'status' column is not present in "
-            "names table."
-        )
+    if assortative_matching:
+        # check if group has at least one or more statuses
+        statuses_columns = [col for col in names.columns if "status" in col]
+        if len(statuses_columns) == 0:
+            raise ValueError(
+                "Assortative matching is requested but 'status' column is not "
+                "present in names table."
+            )
+
+        # check if mixing_multiplier is valid
+        if isinstance(mixing_multiplier, (float, int)):
+            mixing_multiplier = [mixing_multiplier] * len(statuses_columns)
+        elif len(mixing_multiplier) != len(statuses_columns):
+            raise ValueError(
+                "'mixing_multiplier' must be float or list of length "
+                "equal to the number of statuses."
+            )
 
     matchings_history = read_or_create_matchings_history(
         names=names,

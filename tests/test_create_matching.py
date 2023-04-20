@@ -146,8 +146,8 @@ def test_assortative_matching():
 
     # groups should be sorted by faculty
     expected_groups = [
-        {"Daniel", "Antonia"},
-        {"Paul", "Luis", "Fabio"},
+        {"Daniel", "Antonia", "Paul"},
+        {"Luis", "Fabio"},
     ]
     for group in result["matching"]:
         assert set(group.name) in expected_groups

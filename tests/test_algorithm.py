@@ -135,7 +135,7 @@ def test_compute_assortativity_score():
             {"name": ["Alice", "Bob"], "status": ["faculty1", "faculty1"]}, index=[0, 1]
         ),
     ]
-    got = _compute_assortativity_score(matching, mixing_multiplier=3.0)
+    got = _compute_assortativity_score(matching, mixing_multiplier=[3.0])
     assert got == 0.0
 
     matching = [
@@ -143,7 +143,7 @@ def test_compute_assortativity_score():
             {"name": ["Alice", "Bob"], "status": ["faculty1", "faculty2"]}, index=[0, 1]
         ),
     ]
-    got = _compute_assortativity_score(matching, mixing_multiplier=3.0)
+    got = _compute_assortativity_score(matching, mixing_multiplier=[3.0])
     assert got == 6.0
 
     matching = [
@@ -155,7 +155,7 @@ def test_compute_assortativity_score():
             index=[0, 1, 3],
         ),
     ]
-    got = _compute_assortativity_score(matching, mixing_multiplier=3.0)
+    got = _compute_assortativity_score(matching, mixing_multiplier=[3.0])
     assert got == 6.0
 
     matching = [
@@ -168,7 +168,7 @@ def test_compute_assortativity_score():
             index=[0, 1, 3],
         ),
     ]
-    got = _compute_assortativity_score(matching, mixing_multiplier=3.0)
+    got = _compute_assortativity_score(matching, mixing_multiplier=[3.0])
     assert got == 0.0
 
     matching = [
@@ -181,5 +181,20 @@ def test_compute_assortativity_score():
             index=[0, 1, 3],
         ),
     ]
-    got = _compute_assortativity_score(matching, mixing_multiplier=3.0)
+    got = _compute_assortativity_score(matching, mixing_multiplier=[3.0])
+    assert got == 4.0
+
+
+def test_compute_assortativity_score_statuses():
+    matching = [
+        pd.DataFrame(
+            {
+                "name": ["Alice", "Bob", "Jack"],
+                "status": ["faculty1", "faculty2", "faculty2"],
+                "status2": ["roomX", "roomX", "roomY"],
+            },
+            index=[0, 1, 3],
+        ),
+    ]
+    got = _compute_assortativity_score(matching, mixing_multiplier=[3.0, -1.0])
     assert got == 4.0
