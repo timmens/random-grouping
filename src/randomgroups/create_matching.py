@@ -122,6 +122,12 @@ def create_matching(
                 "equal to the number of statuses."
             )
 
+        # check if wants_mixing column is specified
+        # if not, assume that no-one wants mixing
+        # (otherwise one should set assortative_matching=False)
+        if "wants_mixing" not in all_participants.columns:
+            all_participants["wants_mixing"] = 0
+
     matchings_history = read_or_create_matchings_history(
         names=names,
         path=matchings_history_path,

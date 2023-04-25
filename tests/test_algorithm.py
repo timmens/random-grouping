@@ -132,7 +132,12 @@ def test_get_number_of_excluded_participants_equal_max_min():
 def test_compute_assortativity_score():
     matching = [
         pd.DataFrame(
-            {"name": ["Alice", "Bob"], "status": ["faculty1", "faculty1"]}, index=[0, 1]
+            {
+                "name": ["Alice", "Bob"],
+                "status": ["faculty1", "faculty1"],
+                "wants_mixing": [0, 0],
+            },
+            index=[0, 1],
         ),
     ]
     got = _compute_assortativity_score(matching, mixing_multiplier=[3.0])
@@ -140,7 +145,12 @@ def test_compute_assortativity_score():
 
     matching = [
         pd.DataFrame(
-            {"name": ["Alice", "Bob"], "status": ["faculty1", "faculty2"]}, index=[0, 1]
+            {
+                "name": ["Alice", "Bob"],
+                "status": ["faculty1", "faculty2"],
+                "wants_mixing": [0, 0],
+            },
+            index=[0, 1],
         ),
     ]
     got = _compute_assortativity_score(matching, mixing_multiplier=[3.0])
@@ -151,6 +161,7 @@ def test_compute_assortativity_score():
             {
                 "name": ["Alice", "Bob", "Jack"],
                 "status": ["faculty1", "faculty2", "faculty2"],
+                "wants_mixing": [0, 0, 0],
             },
             index=[0, 1, 3],
         ),
@@ -192,6 +203,7 @@ def test_compute_assortativity_score_statuses():
                 "name": ["Alice", "Bob", "Jack"],
                 "status": ["faculty1", "faculty2", "faculty2"],
                 "status2": ["roomX", "roomX", "roomY"],
+                "wants_mixing": [0, 0, 0],
             },
             index=[0, 1, 3],
         ),
