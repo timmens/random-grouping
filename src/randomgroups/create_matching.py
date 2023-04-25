@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Union, Optional, List
+from typing import Union, Optional, Dict
 
 from randomgroups.algorithm import draw_candidate_matchings
 from randomgroups.algorithm import find_optimal_matching
@@ -23,7 +23,7 @@ def create_matching(
     n_groups: Optional[int] = None,
     max_size: Optional[int] = None,
     penalty_func: callable = np.exp,
-    mixing_multiplier: Union[float, List[float]] = 3.0,
+    mixing_multiplier: Union[float, Dict[str, float]] = 3.0,
     assortative_matching: bool = False,
     n_draws: int = 1_000,
     seed: int = 12345,
@@ -44,10 +44,10 @@ def create_matching(
             If None, no maximum size is enforced.
         penalty_func (callable): Penalty function, defaults to np.exp. Is applied to
             punish large values in matchings_history.
-        mixing_multiplier (float, List): Multiplier determining how many members of
-            different status want to stay in the same group. Positive values favor
-            assortative matchings, negative values favor mixed matchings. Can be a
-            list if there are multiple statuses and can only be used if
+        mixing_multiplier (float, Dict[str, float]): Multiplier determining how many
+            members of different status want to stay in the same group. Positive values
+            favor assortative matchings, negative values favor mixed matchings. Can be
+            a dict with statuses as keys and can only be used if
             assortative_matching is True.
         assortative_matching (bool): Whether to use assortative matching.
         n_draws (int): Number of candidate groups to try during loss minimization.
@@ -115,11 +115,13 @@ def create_matching(
 
         # check if mixing_multiplier is valid
         if isinstance(mixing_multiplier, (float, int)):
-            mixing_multiplier = [mixing_multiplier] * len(statuses_columns)
-        elif len(mixing_multiplier) != len(statuses_columns):
+            mixing_multiplier = {
+                status: mixing_multiplier for status in statuses_columns
+            }
+        elif set(mixing_multiplier.keys()) != set(statuses_columns):
             raise ValueError(
-                "'mixing_multiplier' must be float or list of length "
-                "equal to the number of statuses."
+                "'mixing_multiplier' must be a float or a dict with keys "
+                "equal to the statuses."
             )
 
         # check if wants_mixing column is specified
