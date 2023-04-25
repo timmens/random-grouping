@@ -79,7 +79,7 @@ def _compute_assortativity_score(
 
     Args:
         matching (list): Matching.
-         mixing_multiplier (float, List): Multiplier determining how many members of
+        mixing_multiplier (float, List[float]): Multiplier determining how many members of
             different status want to stay in the same group. Positive values favor
             assortative matchings, negative values favor mixed matchings.
 
