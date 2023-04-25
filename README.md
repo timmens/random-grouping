@@ -8,7 +8,7 @@
 # Introduction
 
 This package exports a single function called `create_matching` which can be used to
-create matchings for reoccurring meetings from a varying but overlapping set of members.
+create matchings for recurring meetings from a varying but overlapping set of members.
 In particular, the internal algorithm makes sure that matchings at different meetings
 are mixed.
 
