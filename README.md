@@ -79,7 +79,9 @@ specify whether an individual wants to be mixed with people from another group. 
 not absolute. A float parameter ("mixing_multiplier") can be specified. If this
 parameter is very high it will be less likely that people with a different status and
 which do not want to mix are mixed. In fact, a negative value will make it more likely
-that people with a different status are mixed.
+that people with a different status are mixed. Multiple status columns can be used,
+e.g., "status", "status2", etc. and a dict of mixing multipliers can be passed to get
+different mixing multipliers for different status columns.
 
 # Contributing
 
