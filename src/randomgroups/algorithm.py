@@ -20,7 +20,7 @@ def find_optimal_matching(
             and column is given by the 'id' column in src/data/names.csv.
         penalty_func (callable): Penalty function, defaults to np.exp. Is applied to
             punish large values in matchings_history.
-        mixing_multiplier (float, List): Multiplier determining how many members of
+        mixing_multiplier (float, List[float]): Multiplier determining how many members of
             different status want to stay in the same group. Positive values favor
             assortative matchings, negative values favor mixed matchings.
             Can only be used if assortative_matching is True.
