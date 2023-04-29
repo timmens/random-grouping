@@ -1,0 +1,7 @@
+id,name,joins,status
+0,Antonia,1,faculty1
+1,Daniel,1,faculty1
+2,Fabio,1,faculty2
+3,Lukas,0,faculty2
+4,Luis,1
+5,Paul,1,faculty3

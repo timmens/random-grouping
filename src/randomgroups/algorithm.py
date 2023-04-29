@@ -1,5 +1,5 @@
 from itertools import combinations
-from typing import List, Union
+from typing import List, Union, Dict
 
 import numpy as np
 import pandas as pd
@@ -9,7 +9,7 @@ def find_optimal_matching(
     candidates: List[List[pd.DataFrame]],
     matchings_history: pd.DataFrame,
     penalty_func: callable,
-    faculty_multiplier: float,
+    mixing_multiplier: Dict[str, float],
     assortative_matching: bool,
 ) -> List[pd.DataFrame]:
     """Find best matching from list of candidates.
@@ -20,8 +20,10 @@ def find_optimal_matching(
             and column is given by the 'id' column in src/data/names.csv.
         penalty_func (callable): Penalty function, defaults to np.exp. Is applied to
             punish large values in matchings_history.
-        faculty_multiplier (float): Multiplier determining how much faculty members
-            want to stay in the same group.
+        mixing_multiplier (Dict[str, float]): Multiplier determining how many members
+            of different status want to stay in the same group. Positive values favor
+            assortative matchings, negative values favor mixed matchings.
+            Can only be used if assortative_matching is True.
         assortative_matching (bool): Whether to use assortative matching.
 
     Returns:
@@ -33,7 +35,7 @@ def find_optimal_matching(
         updated_history = update_matchings_history(matchings_history, matching)
         score = _compute_history_score(updated_history, penalty_func)
         if assortative_matching:
-            score += _compute_assortativity_score(matching, faculty_multiplier)
+            score += _compute_assortativity_score(matching, mixing_multiplier)
         criterion_values.append(score)
 
     optimal_matching = candidates[np.argmin(criterion_values)]
@@ -68,7 +70,7 @@ def _compute_history_score(
 
 
 def _compute_assortativity_score(
-    matching: List[pd.DataFrame], faculty_multiplier: float
+    matching: List[pd.DataFrame], mixing_multiplier: Dict[str, float]
 ) -> float:
     """Compute assortativity score.
 
@@ -77,20 +79,26 @@ def _compute_assortativity_score(
 
     Args:
         matching (list): Matching.
-        faculty_multiplier (float): Multiplier determining how much faculty members
-            want to stay in the same group.
+        mixing_multiplier (Dict[str, float]): Multiplier determining how many members
+            of different status want to stay in the same group. Positive values favor
+            assortative matchings, negative values favor mixed matchings.
 
     Returns:
         float: The corresponding score.
 
     """
+    # check if group has more than one status
+    statuses_columns = [col for col in matching[0].columns if "status" in col]
+
     score = 0.0
     for group in matching:
-        if len(group.status.unique()) > 1:
-            wants_assortative = 1 - group.wants_mixing
-            wants_assortative.loc[group.status == "faculty"] *= faculty_multiplier
-            score += wants_assortative.mean()
-
+        for status in statuses_columns:
+            unique_status = group[status].dropna().unique()
+            n_unique_status = len(unique_status)
+            if n_unique_status > 1:
+                wants_assortative = 1 - group.wants_mixing
+                wants_assortative *= mixing_multiplier[status] * n_unique_status
+                score += wants_assortative.mean()
     return score
 
 

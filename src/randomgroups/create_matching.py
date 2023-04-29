@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Union, Optional
+from typing import Union, Optional, Dict
 
 from randomgroups.algorithm import draw_candidate_matchings
 from randomgroups.algorithm import find_optimal_matching
@@ -16,14 +16,14 @@ from randomgroups.io import write_matchings_history
 
 
 def create_matching(
-    names_path: Union[str, Path] = None,
-    matchings_history_path: Union[str, Path] = None,
-    output_path: Union[str, Path] = None,
+    names_path: Union[str, Path],
+    matchings_history_path: Optional[Union[str, Path]] = None,
+    output_path: Optional[Union[str, Path]] = None,
     min_size: int = 2,
     n_groups: Optional[int] = None,
     max_size: Optional[int] = None,
     penalty_func: callable = np.exp,
-    faculty_multiplier: float = 3.0,
+    mixing_multiplier: Union[float, Dict[str, float]] = 3.0,
     assortative_matching: bool = False,
     n_draws: int = 1_000,
     seed: int = 12345,
@@ -44,8 +44,11 @@ def create_matching(
             If None, no maximum size is enforced.
         penalty_func (callable): Penalty function, defaults to np.exp. Is applied to
             punish large values in matchings_history.
-        faculty_multiplier (float): Multiplier determining how much faculty members
-            want to stay in the same group.
+        mixing_multiplier (float, Dict[str, float]): Multiplier determining how many
+            members of different status want to stay in the same group. Positive values
+            favor assortative matchings, negative values favor mixed matchings. Can be
+            a dict with statuses as keys and can only be used if
+            assortative_matching is True.
         assortative_matching (bool): Whether to use assortative matching.
         n_draws (int): Number of candidate groups to try during loss minimization.
         seed (int): Seed from which to start the seed generator.
@@ -70,7 +73,9 @@ def create_matching(
         )
 
     names_path = Path(names_path)
-    matchings_history_path = Path(matchings_history_path)
+    matchings_history_path = (
+        None if matchings_history_path is None else Path(matchings_history_path)
+    )
     output_path = None if output_path is None else Path(output_path)
 
     test_penalties = penalty_func(np.array([1, 2]))
@@ -99,11 +104,31 @@ def create_matching(
     if len(all_participants) < min_size:
         raise ValueError("There are less participants than 'min_size'.")
 
-    if "status" not in names.columns and assortative_matching:
-        raise ValueError(
-            "Assortative matching is requested but 'status' column is not present in "
-            "names table."
-        )
+    if assortative_matching:
+        # check if group has at least one or more statuses
+        statuses_columns = [col for col in names.columns if "status" in col]
+        if len(statuses_columns) == 0:
+            raise ValueError(
+                "Assortative matching is requested but 'status' column is not "
+                "present in names table."
+            )
+
+        # check if mixing_multiplier is valid
+        if isinstance(mixing_multiplier, (float, int)):
+            mixing_multiplier = {
+                status: mixing_multiplier for status in statuses_columns
+            }
+        elif set(mixing_multiplier.keys()) != set(statuses_columns):
+            raise ValueError(
+                "'mixing_multiplier' must be a float or a dict with keys "
+                "equal to the statuses."
+            )
+
+        # check if wants_mixing column is specified
+        # if not, assume that no-one wants mixing
+        # (otherwise one should set assortative_matching=False)
+        if "wants_mixing" not in all_participants.columns:
+            all_participants["wants_mixing"] = 0
 
     matchings_history = read_or_create_matchings_history(
         names=names,
@@ -145,7 +170,7 @@ def create_matching(
         n_to_exclude = 0
 
     # ==================================================================================
-    # Exclude participants if neccessary
+    # Exclude participants if necessary
     # ==================================================================================
 
     participants = _exclude_participants_with_most_matchings(
@@ -173,7 +198,7 @@ def create_matching(
         candidates=list_of_matchings,
         matchings_history=matchings_history,
         penalty_func=penalty_func,
-        faculty_multiplier=faculty_multiplier,
+        mixing_multiplier=mixing_multiplier,
         assortative_matching=assortative_matching,
     )
 
